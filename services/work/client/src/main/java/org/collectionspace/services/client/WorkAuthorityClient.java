@@ -26,7 +26,7 @@
  */
 package org.collectionspace.services.client;
 
-import org.collectionspace.services.concept.WorksCommon;
+import org.collectionspace.services.work.WorksCommon;
 /**
  * The Class WorkAuthorityClient.
  */

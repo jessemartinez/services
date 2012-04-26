@@ -43,7 +43,7 @@
 				<xs:element name="status" type="xs:string"/>
 				<xs:element name="genre" type="xs:string"/>
 				<xs:element name="medium" type="xs:string"/>
-				<xs:element name="useFors" type="useFors">
+				<xs:element name="useFors" type="useFors" />
 				
 				<!--  List of Creators -->
 				<xs:element name="creatorGroupList" type="creatorGroupList"/>
@@ -55,13 +55,11 @@
 	</xs:element>
 		
 	<!-- Use For repeatable field -->
-	<xs:element name="useFors">
-	   <xs:complexType>
+	<xs:complexType  name="useFors">	  
 		   <xs:sequence>
 			   <xs:element name="useFor" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
-		   </xs:sequence>
-	   </xs:complexType>
-   </xs:element>
+		   </xs:sequence>	  
+   </xs:complexType>
 	
 <!-- =================================================================
 	 Creator Group repeating structure
