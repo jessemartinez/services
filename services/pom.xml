@@ -64,6 +64,7 @@
         <module>location</module>
         <module>place</module>
         <module>concept</module>
+        <module>work</module>
         <module>taxonomy</module>
         <module>movement</module>
         <module>report</module>
