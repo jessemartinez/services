@@ -19,7 +19,7 @@ import org.collectionspace.services.work.CreatorGroup;
 import org.collectionspace.services.work.PublisherGroupList;
 import org.collectionspace.services.work.PublisherGroup;
 import org.collectionspace.services.work.UseFors;
-import org.collectionspace.services.work.WorkCommon;
+import org.collectionspace.services.work.WorksCommon;
 import org.dom4j.DocumentException;
 import org.jboss.resteasy.client.ClientResponse;
 import org.slf4j.Logger;
@@ -41,11 +41,11 @@ public class WorkAuthorityClientUtils {
 		WorkauthoritiesCommon workAuthority = new WorkauthoritiesCommon();
 		workAuthority.setDisplayName(displayName);
 		workAuthority.setShortIdentifier(shortIdentifier);
-		String refName = createTaxonomyAuthRefName(shortIdentifier, displayName); // keep?
-		Taxonomyauthority.setRefName(refName); // keep? JJM
+		String refName = createWorkAuthRefName(shortIdentifier, displayName); // keep?
+		workAuthority.setRefName(refName); // keep? JJM
 		workAuthority.setVocabType("WorkAuthority"); //FIXME: REM - Should this really be hard-coded?
 		PoxPayloadOut multipart = new PoxPayloadOut(WorkAuthorityClient.SERVICE_PAYLOAD_NAME);
-		PayloadOutputPart commonPart = multipart.addPart(WorkAuthority, MediaType.APPLICATION_XML_TYPE);
+		PayloadOutputPart commonPart = multipart.addPart(workAuthority, MediaType.APPLICATION_XML_TYPE);
 		commonPart.setLabel(headerLabel);
 
 		if(logger.isDebugEnabled()){
@@ -67,7 +67,7 @@ public class WorkAuthorityClientUtils {
 			String headerLabel){
 		WorksCommon work = new WorksCommon();
 		String shortId = workInfo.get(WorkJAXBSchema.SHORT_IDENTIFIER);
-		String displayName = WorkInfo.get(WorkJAXBSchema.DISPLAY_NAME);
+		String displayName = workInfo.get(WorkJAXBSchema.DISPLAY_NAME);
 		work.setShortIdentifier(shortId);
 		String workRefName = createWorkRefName(workAuthRefName, shortId, displayName);
 		work.setRefName(workRefName);
