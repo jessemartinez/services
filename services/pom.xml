@@ -64,7 +64,6 @@
         <module>location</module>
         <module>place</module>
         <module>concept</module>
-        <module>work</module>
         <module>taxonomy</module>
         <module>movement</module>
         <module>report</module>
@@ -72,6 +71,7 @@
         <module>contact</module>
         <module>workflow</module>
         <module>media</module>
+		<module>work</module>
         <module>JaxRsServiceProvider</module>
         <!--module>sdk</module-->
         <module>IntegrationTests</module>
