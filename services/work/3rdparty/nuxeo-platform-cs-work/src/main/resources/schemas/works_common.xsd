@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+
+<!--
+    Work schema (XSD)
+    
+    Entity  : Work
+    Part    : Common
+    Used for: Nuxeo EP core document type
+    
+    $LastChangedRevision: 860 $
+    $LastChangedDate: 2009-10-14 14:48:05 -0700 (Wed, 14 Oct 2009) $
+-->
+
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+    xmlns:ns="http://collectionspace.org/services/work"
+    xmlns="http://collectionspace.org/services/work"
+    targetNamespace="http://collectionspace.org/services/work" version="0.1">
+    <!-- See http://wiki.collectionspace.org/display/deploy/MMI+Data+Analysis+and+Mapping -->
+
+	<!--  Common Authority Information Group -->
+	<!--  inAuthority is the csid of the owning WorkAuthority -->
+	<xs:element name="inAuthority" type="xs:string"/>
+	<xs:element name="shortIdentifier" type="xs:string"/>
+	<xs:element name="refName" type="xs:string"/>
+	<xs:element name="termStatus" type="xs:string"/>
+	<xs:element name="displayName" type="xs:string"/>
+	<xs:element name="displayNameComputed" type="xs:boolean"/>
+    <xs:element name="shortDisplayName" type="xs:string"/>
+    <xs:element name="shortDisplayNameComputed" type="xs:boolean"/>
+    <xs:element name="source" type="xs:string"/>
+    <xs:element name="sourcePage" type="xs:string"/>
+    <xs:element name="description" type="xs:string"/>
+	
+	
+	<!--  Common Work Information Group -->
+	<!--  This will change in 2.4 when common repeatable auth blocks are used; see CSPACE-4996 -->
+	<xs:element name="workName" type="xs:string"/>
+	<xs:element name="scopeNotes" type="xs:string"/>
+	<xs:element name="indexingNotes" type="xs:boolean"/>
+	<xs:element name="historyNotes" type="xs:string"/>
+	<xs:element name="sourceNotes" type="xs:string"/>
+	<xs:element name="status" type="xs:string"/>
+	<xs:element name="genre" type="xs:string"/>
+	<xs:element name="medium" type="xs:string"/>
+	
+	<!-- Use For repeatable field -->
+	<xs:element name="useFors">
+       <xs:complexType>
+           <xs:sequence>
+               <xs:element name="useFor" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+           </xs:sequence>
+       </xs:complexType>
+   </xs:element>
+	
+	<!--  List of Creators -->
+	<xs:element name="creatorGroupList" type="creatorGroupList"/>
+	
+	<!--  List of additional Work Term sources  -->
+	<xs:element name="publisherGroupList" 
+							type="publisherGroupList"/>
+
+<!-- =================================================================
+	 Creator Group repeating structure
+	 ================================================================= -->
+
+	<xs:complexType name="creatorGroupList">
+		<xs:sequence>
+			<xs:element name="creatorGroup" type="creatorGroup" minOccurs="0"
+						maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="creatorGroup">
+		<xs:sequence>
+			<xs:element name="creator" type="xs:string"/>
+			<xs:element name="creatorType" type="xs:string"/>
+		</xs:sequence>
+	</xs:complexType>
+
+<!-- =================================================================
+	 Publisher Group repeating structure
+	 ================================================================= -->
+
+	<xs:complexType name="publisherGroupList">
+		<xs:sequence>
+			<xs:element name="publisherGroup" 
+						type="publisherGroup" minOccurs="0" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="publisherGroup">
+		<xs:sequence>
+			<xs:element name="publisher" type="xs:string"/>
+			<xs:element name="publisherType" type="xs:string"/>
+		</xs:sequence>
+	</xs:complexType>
+
+</xs:schema>
