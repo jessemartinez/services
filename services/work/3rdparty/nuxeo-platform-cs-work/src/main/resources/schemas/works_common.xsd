@@ -36,7 +36,7 @@
 	<!--  This will change in 2.4 when common repeatable auth blocks are used; see CSPACE-4996 -->
 	<xs:element name="workName" type="xs:string"/>
 	<xs:element name="scopeNotes" type="xs:string"/>
-	<xs:element name="indexingNotes" type="xs:boolean"/>
+	<xs:element name="indexingNotes" type="xs:string"/>
 	<xs:element name="historyNotes" type="xs:string"/>
 	<xs:element name="sourceNotes" type="xs:string"/>
 	<xs:element name="status" type="xs:string"/>
