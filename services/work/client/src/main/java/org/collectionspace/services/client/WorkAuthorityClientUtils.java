@@ -18,7 +18,7 @@ import org.collectionspace.services.work.CreatorGroupList;
 import org.collectionspace.services.work.CreatorGroup;
 import org.collectionspace.services.work.PublisherGroupList;
 import org.collectionspace.services.work.PublisherGroup;
-import org.collectionspace.services.work.UseForList;
+import org.collectionspace.services.work.UseFors;
 import org.collectionspace.services.work.WorksCommon;
 import org.dom4j.DocumentException;
 import org.jboss.resteasy.client.ClientResponse;
@@ -61,13 +61,13 @@ public class WorkAuthorityClientUtils {
 	 * @param workInfo 			The properties for the new Work. Can pass in one condition note and date string.
 	 * @param CreatorGroupList 		Creator group list (values of a repeatable group in the term record)
  	 * @param PublisherGroupList 	Publisher group list (values of a repeatable group in the term record)
- 	 * @param UseForList 			'Use For' list (values of a repeatable 'Use for' field in the term record)
+ 	 * @param UseFors 			'Use For' list (values of a repeatable 'Use for' field in the term record)
 	 * @param headerLabel		The common part label
 	 * @return  				The PoxPayloadOut payload for the create call
 	 */
 	public static PoxPayloadOut createWorkInstance(
 			String workAuthRefName, Map<String, String> workInfo,
-			CreatorGroupList creatorGroupList, PublisherGroupList publisherGroupList, UseForList useForList,
+			CreatorGroupList creatorGroupList, PublisherGroupList publisherGroupList, UseFors useFors,
 			String headerLabel){
 		WorksCommon work = new WorksCommon();
 		String shortId = workInfo.get(WorkJAXBSchema.SHORT_IDENTIFIER);
@@ -90,12 +90,6 @@ public class WorkAuthorityClientUtils {
 		if ((value = (String) workInfo.get(WorkJAXBSchema.TERM_STATUS)) != null) {
                work.setTermStatus(value);
 		}
-
-
-		// Fields specific to this authority record type.
-		if ((value = (String) workInfo.get(WorkJAXBSchema.WORK_NAME)) != null) {
-               work.setWorkName(value);
-		}
 		
 		if ((value = (String) workInfo.get(WorkJAXBSchema.WORK_SCOPE_NOTES)) != null) {
 			work.setScopeNotes(value);
@@ -111,10 +105,6 @@ public class WorkAuthorityClientUtils {
 
 		if ((value = (String) workInfo.get(WorkJAXBSchema.WORK_SOURCE_NOTES)) != null) {
 			work.setSourceNotes(value);
-		}
-		
-		if ((value = (String) workInfo.get(WorkJAXBSchema.WORK_STATUS)) != null) {
-			work.setStatus(value);
 		}
 		
 		if ((value = (String) workInfo.get(WorkJAXBSchema.WORK_GENRE)) != null) {
@@ -133,8 +123,8 @@ public class WorkAuthorityClientUtils {
 			work.setPublisherGroupList(publisherGroupList);
 		}
 		
-		if (useForList != null) {
-			work.setUseForList(useForList);
+		if (useFors != null) {
+			work.setUseFors(useFors);
 		}
 
 		PoxPayloadOut multipart = new PoxPayloadOut(WorkAuthorityClient.SERVICE_ITEM_PAYLOAD_NAME);
@@ -154,13 +144,13 @@ public class WorkAuthorityClientUtils {
      * @param workMap 				The properties for the new Work
  	 * @param CreatorGroupList 		Creator group list (values of a repeatable group in the term record)
  	 * @param PublisherGroupList 	Publisher group list (values of a repeatable group in the term record)
- 	 * @param UseForList 			'Use For' list (values of a repeatable 'Use for' field in the term record)
+ 	 * @param UseFors 				'Use For' list (values of a repeatable 'Use for' field in the term record)
      * @param client 				The service client
      * @return 						The CSID of the new item
      */
    public static String createItemInAuthority(String vcsid,
                String workAuthorityRefName, Map<String,String> workMap,
-			   CreatorGroupList creatorGroupList, PublisherGroupList publisherGroupList, UseForList useForList,
+			   CreatorGroupList creatorGroupList, PublisherGroupList publisherGroupList, UseFors useFors,
                WorkAuthorityClient client ) {
        // Expected status code: 201 Created
        int EXPECTED_STATUS_CODE = Response.Status.CREATED.getStatusCode();
@@ -182,7 +172,7 @@ public class WorkAuthorityClientUtils {
                                +"\" in workAuthority: \"" + workAuthorityRefName +"\"");
        }
        PoxPayloadOut multipart =
-               createWorkInstance(workAuthorityRefName, workMap, creatorGroupList, publisherGroupList, useForList, client.getItemCommonPartName() );
+               createWorkInstance(workAuthorityRefName, workMap, creatorGroupList, publisherGroupList, useFors, client.getItemCommonPartName() );
        String newID = null;
        ClientResponse<Response> res = client.createItem(vcsid, multipart);
        try {
@@ -334,12 +324,12 @@ public class WorkAuthorityClientUtils {
 	 * @see WorkAuthorityDocumentModelHandler.prepareDefaultDisplayName() which
 	 * duplicates this logic, until we define a service-general utils package
 	 * that is neither client nor service specific.
-	 * @param 	workName 
+	 * @param 	Name 
 	 * @return 	A display name
 	 */
-	public static String prepareDefaultDisplayName(String workName) {
+	public static String prepareDefaultDisplayName(String name) {
 		StringBuilder newStr = new StringBuilder();
-		newStr.append(workName);
+		newStr.append(name);
 		return newStr.toString();
 	}
 

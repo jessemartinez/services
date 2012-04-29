@@ -76,7 +76,7 @@ public class WorkDocumentModelHandler
 			shortDisplayNameComputed = true;
 		if (displayNameComputed || shortDisplayNameComputed) {
 			String displayName = prepareDefaultDisplayName(
-				(String) docModel.getProperty(commonPartLabel, WorkJAXBSchema.WORK_NAME));
+				(String) docModel.getProperty(commonPartLabel, WorkJAXBSchema.DISPLAY_NAME)); 
 			if (displayNameComputed) {
 				docModel.setProperty(commonPartLabel, WorkJAXBSchema.DISPLAY_NAME, displayName);
 			}
@@ -91,13 +91,13 @@ public class WorkDocumentModelHandler
      * @see WorkAuthorityClientUtils.prepareDefaultDisplayName() which
      * duplicates this logic, until we define a service-general utils package
      * that is neither client nor service specific.
-     * @param workName
+     * @param Name
      * @return the default display name
      * @throws Exception
      */
-	private static String prepareDefaultDisplayName(String workName) throws Exception {
+	private static String prepareDefaultDisplayName(String name) throws Exception {
 		StringBuilder newStr = new StringBuilder();
-		newStr.append(workName);
+		newStr.append(name);
 		return newStr.toString();
 	}
 
