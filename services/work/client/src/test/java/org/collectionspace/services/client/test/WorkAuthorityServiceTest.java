@@ -43,7 +43,7 @@ import org.collectionspace.services.work.CreatorGroupList;
 import org.collectionspace.services.work.CreatorGroup;
 import org.collectionspace.services.work.PublisherGroupList;
 import org.collectionspace.services.work.PublisherGroup;
-import org.collectionspace.services.work.UseFors;
+import org.collectionspace.services.work.UseForList;
  
 import org.jboss.resteasy.client.ClientResponse;
  
@@ -94,28 +94,17 @@ public class WorkAuthorityServiceTest extends AbstractAuthorityServiceTest<Worka
 	final String TEST_WORK_STATUS = "complete";
 	final String TEST_WORK_GENRE = "comedy";
 	final String TEST_WORK_MEDIUM = "film";
-	final String TEST_WORK_USE_FORS = "muppet movie 1984";
+	final String TEST_WORK_USE_FOR = "muppet movie 1984";
 	final String TEST_WORK_CREATOR_GROUP_CREATOR = "Frank Oz";
 	final String TEST_WORK_CREATOR_GROUP_CREATOR_TYPE = "director";
 	final String TEST_WORK_PUBLISHER_GROUP_PUBLISHER = "TriStar Pictures";
 	final String TEST_WORK_PUBLISHER_GROUP_PUBLISHER_TYPE = "Distributor";
-	final String TEST_WORK_SHORTID = "muppetstakemanhattan";	
 	//final String TEST_WORK_DATE_EARLIEST_SINGLE_YEAR = "1984";
-
-	/*
-	final String TEST_DNAME = "San Jose, CA";
-	final String TEST_NAME = "San Jose";
-	final String TEST_SHORTID = "sanjose";
-	// TODO Make place type be a controlled vocab term.
-	final String TEST_PLACE_TYPE = "City";
-	// TODO Make status type be a controlled vocab term.
-	final String TEST_STATUS = "Approved";
-	final String TEST_NOTE = "My hometown";
-	final String TEST_SOURCE = "Peralta's Places of California";
-	final String TEST_SOURCE_PAGE = "p.21";
-	final String TEST_DISPLAY_DATE = "This year";
-	final String TEST_EARLIEST_SINGLE_YEAR = "2012";
-	*/
+	final String TEST_WORK_SHORTID = "muppetstakemanhattan1984";
+	final String TEST_TERM_STATUS = "accepted";
+	final CreatorGroupList NULL_WORK_CREATOR_GROUP_LIST = null;
+	final PublisherGroupList NULL_WORK_PUBLISHER_GROUP_LIST = null;
+	final UseForList NULL_WORK_USE_FOR_LIST = null;
 	
 	/** The known resource id. */
 	private String knownResourceShortIdentifer = null;
@@ -139,30 +128,47 @@ public class WorkAuthorityServiceTest extends AbstractAuthorityServiceTest<Worka
 	 */
 	private String createItemInAuthority(String vcsid, String authRefName) {
 		final String testName = "createItemInAuthority("+vcsid+","+authRefName+")";
-
-		// REPLACE WITH WORK FIELDS AND VALUES JJM
 		
 		// Submit the request to the service and store the response.
 		WorkAuthorityClient client = new WorkAuthorityClient();
-		Map<String, String> mupManhattan = new HashMap<String,String>();
-		mupManhattan.put(WorkJAXBSchema.DISPLAY_NAME, TEST_WORK_DISPLAY_NAME);
-		mupManhattan.put(WorkJAXBSchema.SHORT_IDENTIFIER, TEST_WORK_SHORTID);	// not sure how to set the shortID value JJM
-		mupManhattan.put(WorkJAXBSchema.WORK_NAME, TEST_WORK_NAME);
-		mupManhattan.put(WorkJAXBSchema.WORK_SCOPE_NOTES, TEST_WORK_SCOPE_NOTES);
-		mupManhattan.put(WorkJAXBSchema.WORK_INDEXING_NOTES, TEST_WORK_INDEXING_NOTES);
-		mupManhattan.put(WorkJAXBSchema.WORK_HISTORY_NOTES, TEST_WORK_HISTORY_NOTES);
-		mupManhattan.put(WorkJAXBSchema.WORK_SOURCE_NOTES, TEST_WORK_SOURCE_NOTES);
-		mupManhattan.put(WorkJAXBSchema.WORK_STATUS, TEST_WORK_STATUS);
-		mupManhattan.put(WorkJAXBSchema.WORK_GENRE, TEST_WORK_GENRE);
-		mupManhattan.put(WorkJAXBSchema.WORK_MEDIUM, TEST_WORK_MEDIUM);
-		mupManhattan.put(WorkJAXBSchema.WORK_USE_FORS, TEST_WORK_USE_FORS);
-		mupManhattan.put(WorkJAXBSchema.WORK_CREATOR_GROUP_CREATOR, TEST_WORK_CREATOR_GROUP_CREATOR);
-		mupManhattan.put(WorkJAXBSchema.WORK_CREATOR_GROUP_CREATOR_TYPE, TEST_WORK_CREATOR_GROUP_CREATOR_TYPE);
-		mupManhattan.put(WorkJAXBSchema.WORK_PUBLISHER_GROUP_PUBLISHER, TEST_WORK_PUBLISHER_GROUP_PUBLISHER);
-		mupManhattan.put(WorkJAXBSchema.WORK_PUBLISHER_GROUP_PUBLISHER_TYPE, TEST_WORK_PUBLISHER_GROUP_PUBLISHER_TYPE);
+		Map<String, String> workMap = new HashMap<String,String>();
+		
+		// Fields present in all authority records.
+		workMap.put(WorkJAXBSchema.SHORT_IDENTIFIER, TEST_WORK_SHORTID);
+		//TODO Make term status be controlled vocab.
+		workMap.put(WorkJAXBSchema.TERM_STATUS, TEST_TERM_STATUS);
+		
+		workMap.put(WorkJAXBSchema.DISPLAY_NAME, TEST_WORK_DISPLAY_NAME);
+		workMap.put(WorkJAXBSchema.SHORT_IDENTIFIER, TEST_WORK_SHORTID);	// not sure how to set the shortID value JJM
+		workMap.put(WorkJAXBSchema.WORK_NAME, TEST_WORK_NAME);
+		workMap.put(WorkJAXBSchema.WORK_SCOPE_NOTES, TEST_WORK_SCOPE_NOTES);
+		workMap.put(WorkJAXBSchema.WORK_INDEXING_NOTES, TEST_WORK_INDEXING_NOTES);
+		workMap.put(WorkJAXBSchema.WORK_HISTORY_NOTES, TEST_WORK_HISTORY_NOTES);
+		workMap.put(WorkJAXBSchema.WORK_SOURCE_NOTES, TEST_WORK_SOURCE_NOTES);
+		workMap.put(WorkJAXBSchema.WORK_STATUS, TEST_WORK_STATUS);
+		workMap.put(WorkJAXBSchema.WORK_GENRE, TEST_WORK_GENRE);
+		workMap.put(WorkJAXBSchema.WORK_MEDIUM, TEST_WORK_MEDIUM);
 
-		String newID = WorkAuthorityClientUtils.createItemInAuthority(vcsid,
-					   authRefName, mupManhattan, client );
+		// complex field types
+		UseForList useForList = new UseForList();
+        List<String> useFors = useForList.getUseFor();
+        useFors.add(TEST_WORK_USE_FOR);
+
+        CreatorGroupList creatorGroupList = new CreatorGroupList();
+        List<CreatorGroup> creatorGroups = creatorGroupList.getCreatorGroup();
+        CreatorGroup creatorGroup = new CreatorGroup();
+        creatorGroup.setCreator(TEST_WORK_CREATOR_GROUP_CREATOR);
+        creatorGroup.setCreatorType(TEST_WORK_CREATOR_GROUP_CREATOR_TYPE);
+        creatorGroups.add(creatorGroup);
+
+        PublisherGroupList publisherGroupList = new PublisherGroupList();
+        List<PublisherGroup> publisherGroups = publisherGroupList.getPublisherGroup();
+        PublisherGroup publisherGroup = new PublisherGroup();
+        publisherGroup.setPublisher(TEST_WORK_PUBLISHER_GROUP_PUBLISHER);
+        publisherGroup.setPublisherType(TEST_WORK_PUBLISHER_GROUP_PUBLISHER_TYPE);
+        publisherGroups.add(publisherGroup);
+		
+		String newID = WorkAuthorityClientUtils.createItemInAuthority(vcsid, authRefName, workMap, creatorGroupList, publisherGroupList, useForList, client);
 
 		// Store the ID returned from the first item resource created
 		// for additional tests below.
@@ -217,32 +223,15 @@ public class WorkAuthorityServiceTest extends AbstractAuthorityServiceTest<Worka
 		// Make sure displayName matches computed form
 		String expectedDisplayName =
 			WorkAuthorityClientUtils.prepareDefaultDisplayName(TEST_WORK_NAME);
-		Assert.assertNotNull(displayName, expectedDisplayName);
+		Assert.assertNotNull(displayName, "Display name was null.  Expected it to be: " + expectedDisplayName);
 
 		// Update the shortName and verify the computed name is updated.
 		work.setCsid(null);
 		work.setDisplayNameComputed(true);
-
-		// Verify the contents of this resource
-		/*WorkNameGroupList workNameGroupList = work.getWorkNameGroupList();
-		Assert.assertNotNull(workNameGroupList);
-		List<WorkNameGroup> workNameGroups = workNameGroupList.getWorkNameGroup();
-		Assert.assertNotNull(workNameGroups);
-		Assert.assertTrue(workNameGroups.size() > 0);
-		String workName = workNameGroups.get(0).getWorkName();
-		Assert.assertNotNull(workName);*/
-
-		// Update the contents of this resource.
-		/*final String WORK_NAME_ADDITION = "verify-item-work-name-updated";
-		workNameGroups.get(0).setWorkName(WORK_NAME_ADDITION + TEST_WORK_NAME);
-		work.setWorkNameGroupList(workNameGroupList);
-		if (logger.isDebugEnabled()) {
-		   logger.debug("to be updated Work");
-		   logger.debug(objectAsXmlString(work, WorksCommon.class));
-		}
+		
+		work.setWorkName("updated-" + TEST_WORK_NAME);
 		expectedDisplayName =
-			WorkAuthorityClientUtils.prepareDefaultDisplayName(WORK_NAME_ADDITION + TEST_WORK_NAME);
-		*/
+			WorkAuthorityClientUtils.prepareDefaultDisplayName("updated-" + TEST_WORK_NAME);
 		
 		// Submit the updated resource to the service and store the response.
 		PoxPayloadOut output = new PoxPayloadOut(WorkAuthorityClient.SERVICE_ITEM_PAYLOAD_NAME);
@@ -263,6 +252,9 @@ public class WorkAuthorityServiceTest extends AbstractAuthorityServiceTest<Worka
 				res.releaseConnection();
 			}
 		}
+		// Verify that the updated resource received the correct data.
+	 	Assert.assertEquals(updatedWork.getWorkName(), work.getWorkName(),
+			"Updated WorkName in Work did not match submitted data.");
 
 		// Verify that the updated resource computes the right displayName.
 		Assert.assertEquals(updatedWork.getDisplayName(), expectedDisplayName,
@@ -297,8 +289,8 @@ public class WorkAuthorityServiceTest extends AbstractAuthorityServiceTest<Worka
 			   "Updated displayNameComputed in Work did not match submitted data.");
 		// Verify that the updated resource computes the right displayName.
 		Assert.assertEquals(updatedWork.getDisplayName(),
-					   expectedDisplayName,
-			   "Updated DisplayName (not computed) in Work not stored.");
+				expectedDisplayName,
+			   	"Updated DisplayName (not computed) in Work not stored.");
    }
  
 	/**
@@ -593,66 +585,32 @@ public class WorkAuthorityServiceTest extends AbstractAuthorityServiceTest<Worka
  
 	@Override
 	protected WorksCommon updateItemInstance(WorksCommon worksCommon) {
-		// check on WorkNameGroup JJM
-		
-		// Get the workName field from the resource passed in      
-		/*WorkNameGroupList workNameGroupList = worksCommon.getWorkNameGroupList();
-		Assert.assertNotNull(workNameGroupList);
-		List<WorkNameGroup> workNameGroups = workNameGroupList.getWorkNameGroup();
-		Assert.assertNotNull(workNameGroups);
-		Assert.assertTrue(workNameGroups.size() > 0);
-		String originalWorkName = workNameGroups.get(0).getWorkName();
-		Assert.assertNotNull(originalWorkName);
-
-		// Update the contents of the new resource based on original value
-		WorkNameGroupList updatedWorkNameGroupList = new WorkNameGroupList();
-		List<WorkNameGroup> updatedWorkNameGroups = updatedWorkNameGroupList.getWorkNameGroup();
-		WorkNameGroup updatedWorkNameGroup = new WorkNameGroup();
-		updatedWorkNameGroup.setWorkName("updated-" + originalWorkName);
-		updatedWorkNameGroups.add(updatedWorkNameGroup);
 		WorksCommon result = new WorksCommon();
-		result.setWorkNameGroupList(updatedWorkNameGroupList);
 
 		result.setDisplayName("updated-" + worksCommon.getDisplayName());
+		result.setWorkName("updated-" + worksCommon.getWorkName());
 
-		return result;*/
-		return null;
+		return result;
 	}
  
 	@Override
 	protected void compareUpdatedItemInstances(WorksCommon original,
 					WorksCommon updated) throws Exception {
-
-		// check on WorkNameGroup JJM
-					
-		// Get the workName fields each resource passed in      
-		/*PlaceNameGroupList placeNameGroupList = original.getPlaceNameGroupList();
-		Assert.assertNotNull(placeNameGroupList);
-		List<PlaceNameGroup> placeNameGroups = placeNameGroupList.getPlaceNameGroup();
-		Assert.assertNotNull(placeNameGroups);
-		Assert.assertTrue(placeNameGroups.size() > 0);
-		String originalPlaceName = placeNameGroups.get(0).getPlaceName();
-		Assert.assertNotNull(originalPlaceName);
-
-		PlaceNameGroupList updatedPlaceNameGroupList = updated.getPlaceNameGroupList();
-		Assert.assertNotNull(updatedPlaceNameGroupList);
-		List<PlaceNameGroup> updatedPlaceNameGroups = updatedPlaceNameGroupList.getPlaceNameGroup();
-		Assert.assertNotNull(updatedPlaceNameGroups);
-		Assert.assertTrue(updatedPlaceNameGroups.size() > 0);
-		String updatedPlaceName = updatedPlaceNameGroups.get(0).getPlaceName();
-		Assert.assertNotNull(updatedPlaceName);
-
-		Assert.assertEquals(updatedPlaceName, originalPlaceName,
-					"Data in updated Work did not match submitted data.");*/
-					
 		Assert.assertEquals(updated.getDisplayName(), original.getDisplayName(),
                "Data in updated Work did not match submitted data.");
+
+		Assert.assertEquals(updated.getWorkName(), original.getWorkName(),
+		       "Work full name in updated Work did not match submitted data.");
 	}
  
 	@Override
 	protected void verifyReadItemInstance(WorksCommon item)
 				throws Exception {
-		// TODO Auto-generated method stub
+		// Copied from Taxon
+		Assert.assertNotNull(item.getWorkName(), "Field value is unexpectedly null.");
+		Assert.assertEquals(item.getWorkName(), TEST_WORK_NAME,
+			"Field value " + item.getWorkName()
+			+ "does not match expected value " + TEST_WORK_NAME);
 	}
  
 	@Override
@@ -661,15 +619,13 @@ public class WorkAuthorityServiceTest extends AbstractAuthorityServiceTest<Worka
 		Map<String, String> nonexMap = new HashMap<String,String>();
 		nonexMap.put(WorkJAXBSchema.WORK_NAME, TEST_WORK_NAME);
 		nonexMap.put(WorkJAXBSchema.SHORT_IDENTIFIER, "nonEx");
-		nonexMap.put(WorkJAXBSchema.WORK_SCOPE_NOTES, TEST_WORK_SCOPE_NOTES);
-		nonexMap.put(WorkJAXBSchema.WORK_GENRE, TEST_WORK_GENRE);
-		// PoxPayloadOut multipart = 
-		// PlaceAuthorityClientUtils.createPlaceInstance(
-		//              PlaceAuthorityClientUtils.createPlaceRefName(knownResourceRefName, "nonEx", "Non Existent"), 
-		//              nonexMap, client.getItemCommonPartName() );
+		nonexMap.put(WorkJAXBSchema.TERM_STATUS, TEST_TERM_STATUS);
 		final String EMPTY_REFNAME = "";
+
 		PoxPayloadOut result =
-				WorkAuthorityClientUtils.createWorkInstance(EMPTY_REFNAME, nonexMap, commonPartName);
+				WorkAuthorityClientUtils.createWorkInstance(EMPTY_REFNAME, nonexMap, 
+					NULL_WORK_CREATOR_GROUP_LIST, NULL_WORK_PUBLISHER_GROUP_LIST, NULL_WORK_USE_FOR_LIST,
+					commonPartName);
 		return result;
 	}
 }

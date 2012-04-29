@@ -2695,6 +2695,8 @@
 	
 	<!-- begin workauthority service meta-data -->
 	<tenant:serviceBindings id="Workauthorities" name="Workauthorities" type="utility" version="0.1">
+		<service:uriPath xmlns:service="http://collectionspace.org/services/common/service">/workauthorities/*/workflow/</service:uriPath>
+		<service:uriPath xmlns:service="http://collectionspace.org/services/common/service">/workauthorities/*/items/*/workflow/</service:uriPath>
 		<!-- other URI paths using which this service could be accessed -->
 		<!-- 
 		<service:uriPath xmlns:service='http://collectionspace.org/services/config/service'>
@@ -2757,7 +2759,7 @@
 	</tenant:serviceBindings>
 	<!-- end workauthority service meta-data -->
 	
-		<!-- begin work service meta-data.
+	<!-- begin work service meta-data.
 		 Note there is no Work service, but there is a
 		 Repository workspace so we have to configure that.
 	-->
