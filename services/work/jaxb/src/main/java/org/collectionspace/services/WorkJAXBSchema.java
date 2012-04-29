@@ -18,14 +18,15 @@ public interface WorkJAXBSchema extends AuthorityItemJAXBSchema {
 	final static String WORK_STATUS = "status";
 	final static String WORK_GENRE = "genre";
 	final static String WORK_MEDIUM = "medium";
-	final static String WORK_USE_FORS = "useFors";
+	
+	final static String WORK_USE_FOR_LIST = "useForList";
+	final static String WORK_USE_FOR = "useFor";
 
 	final static String WORK_CREATOR_GROUP_LIST = "creatorGroupList";
-	final static String WORK_PUBLISHER_GROUP_LIST = "publisherGroupList";
-	
 	final static String WORK_CREATOR_GROUP_CREATOR = "creator";
 	final static String WORK_CREATOR_GROUP_CREATOR_TYPE = "creatorType";
 
+	final static String WORK_PUBLISHER_GROUP_LIST = "publisherGroupList";
 	final static String WORK_PUBLISHER_GROUP_PUBLISHER = "publisher";
 	final static String WORK_PUBLISHER_GROUP_PUBLISHER_TYPE = "publisherType";
 	

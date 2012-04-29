@@ -44,20 +44,19 @@
 	<xs:element name="medium" type="xs:string"/>
 	
 	<!-- Use For repeatable field -->
-	<xs:element name="useFors">
-       <xs:complexType>
-           <xs:sequence>
-               <xs:element name="useFor" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
-           </xs:sequence>
-       </xs:complexType>
-   </xs:element>
+	<xs:element name="useForList" type="useForList" />
+	
+    <xs:complexType name="useForList">
+        <xs:sequence>
+            <xs:element name="useFor" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
 	
 	<!--  List of Creators -->
 	<xs:element name="creatorGroupList" type="creatorGroupList"/>
 	
 	<!--  List of additional Work Term sources  -->
-	<xs:element name="publisherGroupList" 
-							type="publisherGroupList"/>
+	<xs:element name="publisherGroupList" type="publisherGroupList"/>
 
 <!-- =================================================================
 	 Creator Group repeating structure
