@@ -34,19 +34,17 @@
 	
 	<!--  Common Work Information Group -->
 	<!--  This will change in 2.4 when common repeatable auth blocks are used; see CSPACE-4996 -->
-	<xs:element name="workName" type="xs:string"/>
 	<xs:element name="scopeNotes" type="xs:string"/>
 	<xs:element name="indexingNotes" type="xs:string"/>
 	<xs:element name="historyNotes" type="xs:string"/>
 	<xs:element name="sourceNotes" type="xs:string"/>
-	<xs:element name="status" type="xs:string"/>
 	<xs:element name="genre" type="xs:string"/>
 	<xs:element name="medium" type="xs:string"/>
 	
 	<!-- Use For repeatable field -->
-	<xs:element name="useForList" type="useForList" />
+	<xs:element name="useFors" type="useFors" />
 	
-    <xs:complexType name="useForList">
+    <xs:complexType name="useFors">
         <xs:sequence>
             <xs:element name="useFor" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
         </xs:sequence>

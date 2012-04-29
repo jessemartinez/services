@@ -2811,17 +2811,13 @@
 				<service:properties xmlns:service="http://collectionspace.org/services/config/service">
 					<types:item xmlns:types="http://collectionspace.org/services/config/types">
 						<types:key>authRef</types:key>
-						<types:value>workName</types:value>
-						<types:key>authRef</types:key>
 						<types:value>creatorGroupList/*/creator</types:value>
 						<types:key>authRef</types:key>
 						<types:value>publisherGroupList/*/publisher</types:value>
 						<types:key>authRef</types:key>
-						<types:value>useForList|useFor</types:value>
+						<types:value>useFors|useFor</types:value>
 						<types:key>termRef</types:key>
 						<types:value>source</types:value>
-						<types:key>termRef</types:key>
-						<types:value>status</types:value>
 						<types:key>termRef</types:key>
 						<types:value>medium</types:value>
 						<types:key>termRef</types:key>

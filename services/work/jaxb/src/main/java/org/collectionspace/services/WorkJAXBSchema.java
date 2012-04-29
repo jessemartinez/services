@@ -10,16 +10,14 @@ import org.collectionspace.services.common.vocabulary.AuthorityItemJAXBSchema;
  */
 public interface WorkJAXBSchema extends AuthorityItemJAXBSchema {
 	final static String WORKS_COMMON = "works_common";
-	final static String WORK_NAME = "workName";
 	final static String WORK_SCOPE_NOTES = "scopeNotes";
 	final static String WORK_INDEXING_NOTES = "indexingNotes";
 	final static String WORK_HISTORY_NOTES = "historyNotes";
 	final static String WORK_SOURCE_NOTES = "sourceNotes";
-	final static String WORK_STATUS = "status";
 	final static String WORK_GENRE = "genre";
 	final static String WORK_MEDIUM = "medium";
 	
-	final static String WORK_USE_FOR_LIST = "useForList";
+	final static String WORK_USE_FORS = "useFors";
 	final static String WORK_USE_FOR = "useFor";
 
 	final static String WORK_CREATOR_GROUP_LIST = "creatorGroupList";
