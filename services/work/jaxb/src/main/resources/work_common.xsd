@@ -9,7 +9,7 @@
     version="0.1"
     >
     
-    <!-- avoid XmlRootElement nightnmare, see http://weblogs.java.net/blog/kohsuke/archive/2006/03/why_does_jaxb_p.html-->
+    <!-- avoid XmlRootElement nightmare, see http://weblogs.java.net/blog/kohsuke/archive/2006/03/why_does_jaxb_p.html-->
   
     
 	<!-- Work -->
@@ -35,12 +35,10 @@
 
 				<!--  Common Work Information Group -->
 				<!--  This will change in 2.4 when common repeatable auth blocks are used; see CSPACE-4996 -->
-				<xs:element name="workName" type="xs:string"/>
 				<xs:element name="scopeNotes" type="xs:string"/>
-				<xs:element name="indexingNotes" type="xs:boolean"/>
+				<xs:element name="indexingNotes" type="xs:string"/>
 				<xs:element name="historyNotes" type="xs:string"/>
 				<xs:element name="sourceNotes" type="xs:string"/>
-				<xs:element name="status" type="xs:string"/>
 				<xs:element name="genre" type="xs:string"/>
 				<xs:element name="medium" type="xs:string"/>
 				<xs:element name="useFors" type="useFors" />

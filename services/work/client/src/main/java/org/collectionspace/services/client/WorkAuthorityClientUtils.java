@@ -41,8 +41,8 @@ public class WorkAuthorityClientUtils {
 		WorkauthoritiesCommon workAuthority = new WorkauthoritiesCommon();
 		workAuthority.setDisplayName(displayName);
 		workAuthority.setShortIdentifier(shortIdentifier);
-		String refName = createWorkAuthRefName(shortIdentifier, displayName); // keep?
-		workAuthority.setRefName(refName); // keep? JJM
+		String refName = createWorkAuthRefName(shortIdentifier, displayName);
+		workAuthority.setRefName(refName);
 		workAuthority.setVocabType("WorkAuthority"); //FIXME: REM - Should this really be hard-coded?
 		PoxPayloadOut multipart = new PoxPayloadOut(WorkAuthorityClient.SERVICE_PAYLOAD_NAME);
 		PayloadOutputPart commonPart = multipart.addPart(workAuthority, MediaType.APPLICATION_XML_TYPE);
@@ -59,11 +59,15 @@ public class WorkAuthorityClientUtils {
 	/**
 	 * @param workAuthRefName 	The proper refName for this authority
 	 * @param workInfo 			The properties for the new Work. Can pass in one condition note and date string.
+	 * @param CreatorGroupList 		Creator group list (values of a repeatable group in the term record)
+ 	 * @param PublisherGroupList 	Publisher group list (values of a repeatable group in the term record)
+ 	 * @param UseFors 			'Use For' list (values of a repeatable 'Use for' field in the term record)
 	 * @param headerLabel		The common part label
 	 * @return  				The PoxPayloadOut payload for the create call
 	 */
 	public static PoxPayloadOut createWorkInstance(
 			String workAuthRefName, Map<String, String> workInfo,
+			CreatorGroupList creatorGroupList, PublisherGroupList publisherGroupList, UseFors useFors,
 			String headerLabel){
 		WorksCommon work = new WorksCommon();
 		String shortId = workInfo.get(WorkJAXBSchema.SHORT_IDENTIFIER);
@@ -76,14 +80,52 @@ public class WorkAuthorityClientUtils {
 		value = workInfo.get(WorkJAXBSchema.DISPLAY_NAME_COMPUTED);
 		boolean displayNameComputed = (value==null) || value.equalsIgnoreCase("true");
 		work.setDisplayNameComputed(displayNameComputed);
+		
 		if((value = (String)workInfo.get(WorkJAXBSchema.DISPLAY_NAME))!=null)
 			work.setDisplayName(value);
 		value = workInfo.get(WorkJAXBSchema.DISPLAY_NAME_COMPUTED);
 		displayNameComputed = (value==null) || value.equalsIgnoreCase("true");
 		work.setDisplayNameComputed(displayNameComputed);
+
+		if ((value = (String) workInfo.get(WorkJAXBSchema.TERM_STATUS)) != null) {
+               work.setTermStatus(value);
+		}
 		
-		if((value = (String)workInfo.get(WorkJAXBSchema.WORK_NAME))!=null)
-               work.setWorkName(value);
+		if ((value = (String) workInfo.get(WorkJAXBSchema.WORK_SCOPE_NOTES)) != null) {
+			work.setScopeNotes(value);
+		}
+		
+		if ((value = (String) workInfo.get(WorkJAXBSchema.WORK_INDEXING_NOTES)) != null) {
+			work.setIndexingNotes(value);
+		}
+		
+		if ((value = (String) workInfo.get(WorkJAXBSchema.WORK_HISTORY_NOTES)) != null) {
+			work.setHistoryNotes(value);
+		}
+
+		if ((value = (String) workInfo.get(WorkJAXBSchema.WORK_SOURCE_NOTES)) != null) {
+			work.setSourceNotes(value);
+		}
+		
+		if ((value = (String) workInfo.get(WorkJAXBSchema.WORK_GENRE)) != null) {
+			work.setGenre(value);
+		}
+		
+		if ((value = (String) workInfo.get(WorkJAXBSchema.WORK_MEDIUM)) != null) {
+			work.setMedium(value);
+		}
+
+		if (creatorGroupList != null) {
+			work.setCreatorGroupList(creatorGroupList);
+		}
+
+		if (publisherGroupList != null) {
+			work.setPublisherGroupList(publisherGroupList);
+		}
+		
+		if (useFors != null) {
+			work.setUseFors(useFors);
+		}
 
 		PoxPayloadOut multipart = new PoxPayloadOut(WorkAuthorityClient.SERVICE_ITEM_PAYLOAD_NAME);
 		PayloadOutputPart commonPart = multipart.addPart(work,	MediaType.APPLICATION_XML_TYPE);
@@ -100,11 +142,15 @@ public class WorkAuthorityClientUtils {
      * @param vcsid 				CSID of the authority to create a new work item
      * @param workAuthorityRefName 	The refName for the authority
      * @param workMap 				The properties for the new Work
+ 	 * @param CreatorGroupList 		Creator group list (values of a repeatable group in the term record)
+ 	 * @param PublisherGroupList 	Publisher group list (values of a repeatable group in the term record)
+ 	 * @param UseFors 				'Use For' list (values of a repeatable 'Use for' field in the term record)
      * @param client 				The service client
      * @return 						The CSID of the new item
      */
    public static String createItemInAuthority(String vcsid,
                String workAuthorityRefName, Map<String,String> workMap,
+			   CreatorGroupList creatorGroupList, PublisherGroupList publisherGroupList, UseFors useFors,
                WorkAuthorityClient client ) {
        // Expected status code: 201 Created
        int EXPECTED_STATUS_CODE = Response.Status.CREATED.getStatusCode();
@@ -119,11 +165,6 @@ public class WorkAuthorityClientUtils {
                         throw new RuntimeException(
                         "CreateItem: Must supply a displayName if displayNameComputed is set to false.");
                }
-               /* Could try to pull name out of first workNameGroup
-                displayName = 
-                        prepareDefaultDisplayName(
-                        workMap.get(WorkJAXBSchema.WORK_NAME));
-               */
        }
        
        if(logger.isDebugEnabled()){
@@ -131,7 +172,7 @@ public class WorkAuthorityClientUtils {
                                +"\" in workAuthority: \"" + workAuthorityRefName +"\"");
        }
        PoxPayloadOut multipart =
-               createWorkInstance(workAuthorityRefName, workMap, client.getItemCommonPartName() );
+               createWorkInstance(workAuthorityRefName, workMap, creatorGroupList, publisherGroupList, useFors, client.getItemCommonPartName() );
        String newID = null;
        ClientResponse<Response> res = client.createItem(vcsid, multipart);
        try {
@@ -283,12 +324,12 @@ public class WorkAuthorityClientUtils {
 	 * @see WorkAuthorityDocumentModelHandler.prepareDefaultDisplayName() which
 	 * duplicates this logic, until we define a service-general utils package
 	 * that is neither client nor service specific.
-	 * @param 	workName 
+	 * @param 	Name 
 	 * @return 	A display name
 	 */
-	public static String prepareDefaultDisplayName(String workName ) {
+	public static String prepareDefaultDisplayName(String name) {
 		StringBuilder newStr = new StringBuilder();
-		newStr.append(workName);
+		newStr.append(name);
 		return newStr.toString();
 	}
 
