@@ -35,13 +35,12 @@
 
 				<!--  Common Work Information Group -->
 				<!--  This will change in 2.4 when common repeatable auth blocks are used; see CSPACE-4996 -->
-				<xs:element name="scopeNotes" type="xs:string"/>
-				<xs:element name="indexingNotes" type="xs:string"/>
-				<xs:element name="historyNotes" type="xs:string"/>
-				<xs:element name="sourceNotes" type="xs:string"/>
+				<xs:element name="scopeNote" type="xs:string"/>
+				<xs:element name="indexingNote" type="xs:string"/>
+				<xs:element name="historyNote" type="xs:string"/>
+				<xs:element name="sourceNote" type="xs:string"/>
 				<xs:element name="genre" type="xs:string"/>
 				<xs:element name="medium" type="xs:string"/>
-				<xs:element name="useFors" type="useFors" />
 				
 				<!--  List of Creators -->
 				<xs:element name="creatorGroupList" type="creatorGroupList"/>
@@ -51,13 +50,6 @@
 			</xs:sequence>
 		</xs:complexType>
 	</xs:element>
-		
-	<!-- Use For repeatable field -->
-	<xs:complexType  name="useFors">	  
-		   <xs:sequence>
-			   <xs:element name="useFor" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
-		   </xs:sequence>	  
-   </xs:complexType>
 	
 <!-- =================================================================
 	 Creator Group repeating structure
