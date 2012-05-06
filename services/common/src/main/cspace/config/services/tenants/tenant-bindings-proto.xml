@@ -2826,10 +2826,6 @@
 						<types:value>publisherGroupList/*/publisher</types:value>
 					</types:item>
 					<types:item xmlns:types="http://collectionspace.org/services/config/types">
-						<types:key>authRef</types:key>
-						<types:value>useFors|useFor</types:value>
-					</types:item>
-					<types:item xmlns:types="http://collectionspace.org/services/config/types">
 						<types:key>termRef</types:key>
 						<types:value>source</types:value>
 					</types:item>
