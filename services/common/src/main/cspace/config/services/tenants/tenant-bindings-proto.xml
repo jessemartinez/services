@@ -3020,6 +3020,7 @@
                 </service:part>
             </service:object>
         </tenant:serviceBindings>
+<<<<<<< HEAD
         <!-- end contact service meta-data -->
     
         <!-- begin note service meta-data -->
