@@ -43,7 +43,6 @@ import org.collectionspace.services.work.CreatorGroupList;
 import org.collectionspace.services.work.CreatorGroup;
 import org.collectionspace.services.work.PublisherGroupList;
 import org.collectionspace.services.work.PublisherGroup;
-import org.collectionspace.services.work.UseFors;
  
 import org.jboss.resteasy.client.ClientResponse;
  
@@ -86,23 +85,21 @@ public class WorkAuthorityServiceTest extends AbstractAuthorityServiceTest<Worka
    
 	// 	  Instance variables specific to this test.
 	final String TEST_WORK_DISPLAY_NAME = "Muppets Take Manhattan (1984)";
-	final String TEST_WORK_SCOPE_NOTES = "scope notes here";
-	final String TEST_WORK_INDEXING_NOTES = "indexing notes here";
-	final String TEST_WORK_HISTORY_NOTES = "history notes here";
-	final String TEST_WORK_SOURCE_NOTES = "source notes here";
+	final String TEST_WORK_SCOPE_NOTE = "scope note here";
+	final String TEST_WORK_INDEXING_NOTE = "indexing note here";
+	final String TEST_WORK_HISTORY_NOTE = "history note here";
+	final String TEST_WORK_SOURCE_NOTE = "source note here";
 	final String TEST_WORK_STATUS = "complete";
 	final String TEST_WORK_GENRE = "comedy";
 	final String TEST_WORK_MEDIUM = "film";
-	final String TEST_WORK_USE_FOR = "muppet movie 1984";
 	final String TEST_WORK_CREATOR_GROUP_CREATOR = "Frank Oz";
 	final String TEST_WORK_CREATOR_GROUP_CREATOR_TYPE = "director";
 	final String TEST_WORK_PUBLISHER_GROUP_PUBLISHER = "TriStar Pictures";
 	final String TEST_WORK_PUBLISHER_GROUP_PUBLISHER_TYPE = "Distributor";
-	final String TEST_WORK_SHORTID = "muppetstakemanhattan1984";
+	final String TEST_WORK_SHORTID = "muppetstakemanhattan";
 	final String TEST_TERM_STATUS = "accepted";
 	final CreatorGroupList NULL_WORK_CREATOR_GROUP_LIST = null;
 	final PublisherGroupList NULL_WORK_PUBLISHER_GROUP_LIST = null;
-	final UseFors NULL_WORK_USE_FORS = null;
 	
 	/** The known resource id. */
 	private String knownResourceShortIdentifer = null;
@@ -137,17 +134,14 @@ public class WorkAuthorityServiceTest extends AbstractAuthorityServiceTest<Worka
 		workMap.put(WorkJAXBSchema.TERM_STATUS, TEST_TERM_STATUS);
 		workMap.put(WorkJAXBSchema.DISPLAY_NAME, TEST_WORK_DISPLAY_NAME);
 		workMap.put(WorkJAXBSchema.SHORT_IDENTIFIER, TEST_WORK_SHORTID);
-		workMap.put(WorkJAXBSchema.WORK_SCOPE_NOTES, TEST_WORK_SCOPE_NOTES);
-		workMap.put(WorkJAXBSchema.WORK_INDEXING_NOTES, TEST_WORK_INDEXING_NOTES);
-		workMap.put(WorkJAXBSchema.WORK_HISTORY_NOTES, TEST_WORK_HISTORY_NOTES);
-		workMap.put(WorkJAXBSchema.WORK_SOURCE_NOTES, TEST_WORK_SOURCE_NOTES);
+		workMap.put(WorkJAXBSchema.WORK_SCOPE_NOTE, TEST_WORK_SCOPE_NOTE);
+		workMap.put(WorkJAXBSchema.WORK_INDEXING_NOTE, TEST_WORK_INDEXING_NOTE);
+		workMap.put(WorkJAXBSchema.WORK_HISTORY_NOTE, TEST_WORK_HISTORY_NOTE);
+		workMap.put(WorkJAXBSchema.WORK_SOURCE_NOTE, TEST_WORK_SOURCE_NOTE);
 		workMap.put(WorkJAXBSchema.WORK_GENRE, TEST_WORK_GENRE);
 		workMap.put(WorkJAXBSchema.WORK_MEDIUM, TEST_WORK_MEDIUM);
 
 		// complex field types
-		UseFors useFors = new UseFors();
-        List<String> useForsList = useFors.getUseFor();
-        useForsList.add(TEST_WORK_USE_FOR);
 
         CreatorGroupList creatorGroupList = new CreatorGroupList();
         List<CreatorGroup> creatorGroups = creatorGroupList.getCreatorGroup();
@@ -163,7 +157,7 @@ public class WorkAuthorityServiceTest extends AbstractAuthorityServiceTest<Worka
         publisherGroup.setPublisherType(TEST_WORK_PUBLISHER_GROUP_PUBLISHER_TYPE);
         publisherGroups.add(publisherGroup);
 		
-		String newID = WorkAuthorityClientUtils.createItemInAuthority(vcsid, authRefName, workMap, creatorGroupList, publisherGroupList, useFors, client);
+		String newID = WorkAuthorityClientUtils.createItemInAuthority(vcsid, authRefName, workMap, creatorGroupList, publisherGroupList, client);
 
 		// Store the ID returned from the first item resource created
 		// for additional tests below.
@@ -615,7 +609,7 @@ public class WorkAuthorityServiceTest extends AbstractAuthorityServiceTest<Worka
 
 		PoxPayloadOut result =
 				WorkAuthorityClientUtils.createWorkInstance(EMPTY_REFNAME, nonexMap, 
-					NULL_WORK_CREATOR_GROUP_LIST, NULL_WORK_PUBLISHER_GROUP_LIST, NULL_WORK_USE_FORS,
+					NULL_WORK_CREATOR_GROUP_LIST, NULL_WORK_PUBLISHER_GROUP_LIST,
 					commonPartName);
 		return result;
 	}

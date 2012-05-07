@@ -751,3 +751,4 @@ services/servicegroup/service/.classpath
 services/servicegroup/service/.project
 services/servicegroup/service/.settings/
 services/workflow/service/.settings/
+.DS_Store
