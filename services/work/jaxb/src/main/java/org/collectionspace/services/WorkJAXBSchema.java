@@ -13,7 +13,6 @@ public interface WorkJAXBSchema extends AuthorityItemJAXBSchema {
 	final static String WORK_SCOPE_NOTE = "scopeNote";
 	final static String WORK_INDEXING_NOTE = "indexingNote";
 	final static String WORK_HISTORY_NOTE = "historyNote";
-	final static String WORK_SOURCE_NOTE = "sourceNote";
 	final static String WORK_GENRE = "genre";
 	final static String WORK_MEDIUM = "medium";
 
@@ -25,9 +24,18 @@ public interface WorkJAXBSchema extends AuthorityItemJAXBSchema {
 	final static String WORK_PUBLISHER_GROUP_PUBLISHER = "publisher";
 	final static String WORK_PUBLISHER_GROUP_PUBLISHER_TYPE = "publisherType";
 	
-	final static String DISPLAY_NAME = "displayName";
-	final static String DISPLAY_NAME_COMPUTED = "displayNameComputed";
-	final static String SHORT_DISPLAY_NAME = "shortDisplayName";
-	final static String SHORT_DISPLAY_NAME_COMPUTED = "shortDisplayNameComputed";
+	final static String WORK_TERM_DISPLAY_NAME = "termDisplayName";
+	final static String WORK_TERM_NAME = "termName"
+	final static String WORK_TERM_TYPE = "termType"
+	final static String WORK_TERM_STATUS = "termStatus"
+	final static String WORK_TERM_QUALIFIER = "termQualifier"
+	final static String WORK_TERM_LANGUAGE = "termLanguage"
+	final static String WORK_TERM_PERFFORLANGUAGE = "termPerfForLang"
+	final static String WORK_TERM_SOURCE = "termSource"
+	final static String WORK_TERM_SOURCE_DETAIL = "termSourceDetail"
+	final static String WORK_TERM_SOURCE_ID = "termSourceID"
+	final static String WORK_TERM_SOURCE_NOTE = "termSourceNote"
+	
+	final static String WORK_SHORT_IDENTIFIER = "shortIdentifier";
+	final static String WORK_REFNAME = "refName";
 }
-

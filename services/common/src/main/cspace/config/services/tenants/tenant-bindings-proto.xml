@@ -2827,7 +2827,11 @@
 					</types:item>
 					<types:item xmlns:types="http://collectionspace.org/services/config/types">
 						<types:key>termRef</types:key>
-						<types:value>source</types:value>
+						<types:value>termSource</types:value>
+					</types:item>
+					<types:item xmlns:types="http://collectionspace.org/services/config/types">
+						<types:key>termRef</types:key>
+						<types:value>termStatus</types:value>
 					</types:item>
 					<types:item xmlns:types="http://collectionspace.org/services/config/types">
 						<types:key>termRef</types:key>
