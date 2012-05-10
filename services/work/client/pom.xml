@@ -36,7 +36,7 @@
         </dependency>        
         <dependency>
             <groupId>org.collectionspace.services</groupId>
-            <artifactId>org.collectionspace.services.concept.jaxb</artifactId>
+            <artifactId>org.collectionspace.services.work.jaxb</artifactId>
             <version>${project.version}</version>
         </dependency>
 		 <dependency>
@@ -90,7 +90,7 @@
     </dependencies>
     
     <build>
-        <finalName>collectionspace-services-concept-client</finalName>
+        <finalName>collectionspace-services-work-client</finalName>
         <plugins>
         </plugins>
     </build>

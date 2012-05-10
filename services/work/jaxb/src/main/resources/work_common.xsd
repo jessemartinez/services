@@ -33,23 +33,53 @@
 			    <xs:element name="sourcePage" type="xs:string"/>
 			    <xs:element name="description" type="xs:string"/>
 
-				<!--  Common Work Information Group -->
-				<!--  This will change in 2.4 when common repeatable auth blocks are used; see CSPACE-4996 -->
 				<xs:element name="scopeNote" type="xs:string"/>
 				<xs:element name="indexingNote" type="xs:string"/>
 				<xs:element name="historyNote" type="xs:string"/>
-				<xs:element name="sourceNote" type="xs:string"/>
 				<xs:element name="genre" type="xs:string"/>
 				<xs:element name="medium" type="xs:string"/>
 				
+				<!-- List of workTerms -->
+				<xs:element name="workTermGroupList" type="workTermGroupList"/>
+	
 				<!--  List of Creators -->
 				<xs:element name="creatorGroupList" type="creatorGroupList"/>
 				
-				<!--  List of additional Work Term sources  -->
+				<!--  List of additional Work Term sources -->
 				<xs:element name="publisherGroupList" type="publisherGroupList"/>
+				
+				<!-- Structured Date group -->
+				<xs:element name="workDateGroupList" type="workDateGroupList"/>
 			</xs:sequence>
 		</xs:complexType>
 	</xs:element>
+	
+<!-- =================================================================
+	 Work Term Group repeating structure
+	 ================================================================= -->
+
+	<xs:complexType name="workTermGroupList">
+		<xs:sequence>
+			<xs:element name="workTermGroup" type="workTermGroup" minOccurs="0"
+						maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="workTermGroup">
+		<xs:sequence>
+			<xs:element name="termDisplayName" type="xs:string"/>
+			<xs:element name="termName" type="xs:string"/>
+			<xs:element name="termType" type="xs:string"/>
+			<xs:element name="termStatus" type="xs:string"/>
+			<xs:element name="termQualifier" type="xs:string"/>
+			<xs:element name="termLanguage" type="xs:string"/>
+			<xs:element name="termPerfForLang" type="xs:string"/>
+			<xs:element name="termSource" type="xs:string"/>
+			<xs:element name="termSourceDetail" type="xs:string"/>
+			<xs:element name="termSourceID" type="xs:string"/>
+			<xs:element name="termSourceNote" type="xs:string"/>
+		</xs:sequence>
+	</xs:complexType>
 	
 <!-- =================================================================
 	 Creator Group repeating structure
@@ -91,8 +121,6 @@
 <!-- =================================================================
 	 Structured Date repeating structure
 	 ================================================================= -->
-
-	<xs:element name="workDateGroupList" type="workDateGroupList"/>
 
 	<xs:complexType name="workDateGroupList">
 		<xs:sequence>
