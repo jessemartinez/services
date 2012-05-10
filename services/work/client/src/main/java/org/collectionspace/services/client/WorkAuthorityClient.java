@@ -35,6 +35,7 @@ public class WorkAuthorityClient extends AuthorityClientImpl<WorksCommon, WorkAu
 	public static final String SERVICE_PATH_COMPONENT = SERVICE_NAME;	
 	public static final String SERVICE_PATH = "/" + SERVICE_PATH_COMPONENT;
 	public static final String SERVICE_PAYLOAD_NAME = SERVICE_NAME;
+	public static final String TERM_INFO_GROUP_XPATH_BASE = "workTermGroupList";
 	//
 	// Subitem constants
 	//

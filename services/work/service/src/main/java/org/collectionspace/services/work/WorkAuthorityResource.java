@@ -23,6 +23,9 @@
  */
 package org.collectionspace.services.work;
 
+import javax.ws.rs.Consumes;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
 import org.collectionspace.services.client.WorkAuthorityClient;
 import org.collectionspace.services.common.vocabulary.AuthorityResource;
 import org.collectionspace.services.work.nuxeo.WorkDocumentModelHandler;
@@ -33,37 +36,36 @@ import javax.ws.rs.Consumes;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 
+/**
+ * WorkAuthorityResource
+ * 
+ * Handles, dispatches, and returns responses to RESTful requests
+ * related to Work authority-related resources.
+ */
 @Path(WorkAuthorityClient.SERVICE_PATH)
 @Consumes("application/xml")
 @Produces("application/xml")
 public class WorkAuthorityResource 
-	extends AuthorityResource<WorkauthoritiesCommon, 
-								WorkDocumentModelHandler> {
-
-    private final static String workAuthorityServiceName = "workauthorities";
-	private final static String WORKAUTHORITIES_COMMON = "workauthorities_common";
-    
-    private final static String workServiceName = "works";
-	private final static String WORKS_COMMON = "works_common";
+		extends AuthorityResource<WorkauthoritiesCommon, WorkDocumentModelHandler> {
     
     final Logger logger = LoggerFactory.getLogger(WorkAuthorityResource.class);
 
     public WorkAuthorityResource() {
 		super(WorkauthoritiesCommon.class, WorkAuthorityResource.class,
-				WORKAUTHORITIES_COMMON, WORKS_COMMON);
+				WorkAuthorityClient.SERVICE_COMMON_PART_NAME, WorkAuthorityClient.SERVICE_ITEM_COMMON_PART_NAME);
     }
 
     @Override
     public String getServiceName() {
-        return workAuthorityServiceName;
+        return WorkAuthorityClient.SERVICE_NAME;
     }
 
     public String getItemServiceName() {
-        return workServiceName;
+        return WorkAuthorityClient.SERVICE_ITEM_NAME;
     }
 
     @Override
     public Class<WorkauthoritiesCommon> getCommonPartClass() {
-    	return WorkauthoritiesCommon.class;
+    	return WorkAuthorityClient.TERM_INFO_GROUP_XPATH_BASE;
     }
 }

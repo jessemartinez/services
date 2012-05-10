@@ -62,8 +62,8 @@ public class WorkDocumentModelHandler
      *
      * @param docModel the doc model
      * @throws Exception the exception
-     */
-	@Override
+     
+	/*@Override
 	protected void handleComputedDisplayNames(DocumentModel docModel) throws Exception {
 		String commonPartLabel = getServiceContext().getCommonPartLabel("works");
 		Boolean displayNameComputed = (Boolean) docModel.getProperty(commonPartLabel,
@@ -85,7 +85,7 @@ public class WorkDocumentModelHandler
 			}
 		}
 	}
-
+	*/
    /**
      * Produces a default displayName from one or more supplied fields.
      * @see WorkAuthorityClientUtils.prepareDefaultDisplayName() which
