@@ -24,14 +24,6 @@
 				<xs:element name="inAuthority" type="xs:string"/>
 				<xs:element name="shortIdentifier" type="xs:string"/>
 				<xs:element name="refName" type="xs:string"/>
-				<xs:element name="termStatus" type="xs:string"/>
-				<xs:element name="displayName" type="xs:string"/>
-				<xs:element name="displayNameComputed" type="xs:boolean"/>
-			    <xs:element name="shortDisplayName" type="xs:string"/>
-			    <xs:element name="shortDisplayNameComputed" type="xs:boolean"/>
-			    <xs:element name="source" type="xs:string"/>
-			    <xs:element name="sourcePage" type="xs:string"/>
-			    <xs:element name="description" type="xs:string"/>
 
 				<xs:element name="scopeNote" type="xs:string"/>
 				<xs:element name="indexingNote" type="xs:string"/>

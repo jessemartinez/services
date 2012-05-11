@@ -1,16 +1,13 @@
 package org.collectionspace.services.client;
- 
+  
 import java.io.File;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 import java.util.Date;
-import java.util.List;
- 
+import java.util.List; 
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
-import javax.ws.rs.core.Response;
- 
+import javax.ws.rs.core.Response; 
 import org.apache.commons.io.FileUtils;
 import org.collectionspace.services.common.api.Tools;
 import org.collectionspace.services.WorkJAXBSchema;
@@ -18,10 +15,6 @@ import org.collectionspace.services.client.test.ServiceRequestType;
 import org.collectionspace.services.work.WorkauthoritiesCommon;
 import org.collectionspace.services.work.WorkTermGroupList;
 import org.collectionspace.services.work.WorkTermGroup;
-import org.collectionspace.services.work.CreatorGroupList;
-import org.collectionspace.services.work.CreatorGroup;
-import org.collectionspace.services.work.PublisherGroupList;
-import org.collectionspace.services.work.PublisherGroup;
 import org.collectionspace.services.work.WorksCommon;
 import org.dom4j.DocumentException;
 import org.jboss.resteasy.client.ClientResponse;
@@ -62,35 +55,17 @@ public class WorkAuthorityClientUtils {
 	/**
 	 * @param workAuthRefName 		The proper refName for this authority
 	 * @param workInfo 				The properties for the new Work. Can pass in one condition note and date string.
-	 * @param CreatorGroupList 		Creator group list (values of a repeatable group in the term record)
- 	 * @param PublisherGroupList 	Publisher group list (values of a repeatable group in the term record)
  	 * @param terms 				list of WorkTermGroup fields
 	 * @param headerLabel			The common part label
 	 * @return  					The PoxPayloadOut payload for the create call
 	 */
 	public static PoxPayloadOut createWorkInstance(
 			String workAuthRefName, Map<String, String> workInfo,
-			CreatorGroupList creatorGroupList, PublisherGroupList publisherGroupList,
 			List<WorkTermGroup> terms, String headerLabel){
 		WorksCommon work = new WorksCommon();
 		String shortId = workInfo.get(WorkJAXBSchema.SHORT_IDENTIFIER);
-		//String displayName = workInfo.get(WorkJAXBSchema.DISPLAY_NAME);
-		//work.setShortIdentifier(shortId);
-		//String workRefName = createWorkRefName(workAuthRefName, shortId, displayName);
-		//work.setRefName(workRefName);
-		
-		/*String value = null;
-		value = workInfo.get(WorkJAXBSchema.DISPLAY_NAME_COMPUTED);
-		boolean displayNameComputed = (value==null) || value.equalsIgnoreCase("true");
-		work.setDisplayNameComputed(displayNameComputed);
-		
-		if((value = (String)workInfo.get(WorkJAXBSchema.DISPLAY_NAME))!=null)
-			work.setDisplayName(value);
-		value = workInfo.get(WorkJAXBSchema.DISPLAY_NAME_COMPUTED);
-		displayNameComputed = (value==null) || value.equalsIgnoreCase("true");
-		work.setDisplayNameComputed(displayNameComputed);
-		*/
-		
+		work.setShortIdentifier(shortId);
+
 		// Set values in the Term Information Group
 		WorkTermGroupList termList = new WorkTermGroupList();
 		if (terms == null || terms.isEmpty()) {
@@ -98,44 +73,7 @@ public class WorkAuthorityClientUtils {
 		}
 		termList.getWorkTermGroup().addAll(terms); 
         work.setWorkTermGroupList(termList);
-		
-		if ((value = (String) workInfo.get(WorkJAXBSchema.WORK_TERM_STATUS)) != null) {
-               work.setTermStatus(value);
-		}
-		
-		if ((value = (String) workInfo.get(WorkJAXBSchema.WORK_SCOPE_NOTE)) != null) {
-			work.setScopeNote(value);
-		}
-		
-		if ((value = (String) workInfo.get(WorkJAXBSchema.WORK_INDEXING_NOTE)) != null) {
-			work.setIndexingNote(value);
-		}
-		
-		if ((value = (String) workInfo.get(WorkJAXBSchema.WORK_HISTORY_NOTE)) != null) {
-			work.setHistoryNote(value);
-		}
-
-		if ((value = (String) workInfo.get(WorkJAXBSchema.WORK_SOURCE_NOTE)) != null) {
-			work.setSourceNote(value);
-		}
-		
-		if ((value = (String) workInfo.get(WorkJAXBSchema.WORK_GENRE)) != null) {
-			work.setGenre(value);
-		}
-		
-		if ((value = (String) workInfo.get(WorkJAXBSchema.WORK_MEDIUM)) != null) {
-			work.setMedium(value);
-		}
-
-		if (creatorGroupList != null) {
-			work.setCreatorGroupList(creatorGroupList);
-		}
-
-		if (publisherGroupList != null) {
-			work.setPublisherGroupList(publisherGroupList);
-		}
-
-
+	
 		PoxPayloadOut multipart = new PoxPayloadOut(WorkAuthorityClient.SERVICE_ITEM_PAYLOAD_NAME);
 		PayloadOutputPart commonPart = multipart.addPart(work,	MediaType.APPLICATION_XML_TYPE);
 		commonPart.setLabel(headerLabel);
@@ -151,29 +89,16 @@ public class WorkAuthorityClientUtils {
      * @param vcsid 				CSID of the authority to create a new work item
      * @param workAuthorityRefName 	The refName for the authority
      * @param workMap 				The properties for the new Work
- 	 * @param CreatorGroupList 		Creator group list (values of a repeatable group in the term record)
- 	 * @param PublisherGroupList 	Publisher group list (values of a repeatable group in the term record)
      * @param client 				The service client
      * @return 						The CSID of the new item
      */
    public static String createItemInAuthority(String vcsid,
                String workAuthorityRefName, Map<String,String> workMap,
-			   CreatorGroupList creatorGroupList, PublisherGroupList publisherGroupList,
                List<WorkTermGroup> terms, WorkAuthorityClient client ) {
-       // Expected status code: 201 Created
-       int EXPECTED_STATUS_CODE = Response.Status.CREATED.getStatusCode();
-       // Type of service request being tested
-       ServiceRequestType REQUEST_TYPE = ServiceRequestType.CREATE;
-       
-       //String displayName = workMap.get(WorkJAXBSchema.DISPLAY_NAME);
-       //String displayNameComputedStr = workMap.get(WorkJAXBSchema.DISPLAY_NAME_COMPUTED);
-       //boolean displayNameComputed = (displayNameComputedStr==null) || displayNameComputedStr.equalsIgnoreCase("true");
-       //if( displayName == null ) {
-       //        if(!displayNameComputed) {
-       //                 throw new RuntimeException(
-       //                 "CreateItem: Must supply a displayName if displayNameComputed is set to false.");
-       //        }
-       //}
+       	// Expected status code: 201 Created
+      	int EXPECTED_STATUS_CODE = Response.Status.CREATED.getStatusCode();
+       	// Type of service request being tested
+       	ServiceRequestType REQUEST_TYPE = ServiceRequestType.CREATE;
 	   
 		String displayName = "";
 		if ((terms !=null) && (! terms.isEmpty())) {
@@ -182,10 +107,10 @@ public class WorkAuthorityClientUtils {
        
        if(logger.isDebugEnabled()){
                logger.debug("Creating item with display name: \""+displayName
-							   +"\" in locationAuthority: \"" + vcsid +"\"");
+							   +"\" in workAuthority: \"" + vcsid +"\"");
        }
        PoxPayloadOut multipart =
-               createWorkInstance(workAuthorityRefName, workMap, creatorGroupList, publisherGroupList, terms, client.getItemCommonPartName() );
+               createWorkInstance(workAuthorityRefName, workMap, terms, client.getItemCommonPartName() );
        String newID = null;
        ClientResponse<Response> res = client.createItem(vcsid, multipart);
        try {
@@ -356,5 +281,9 @@ public class WorkAuthorityClientUtils {
 		newStr.append(name);
 		return newStr.toString();
 	}
+    
+    private static String getGeneratedIdentifier() {
+        return "id" + new Date().getTime(); 
+  	}
 
 }

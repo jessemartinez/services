@@ -25,8 +25,7 @@ package org.collectionspace.services.client.test;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
- 
+import java.util.Map; 
 import org.collectionspace.services.WorkJAXBSchema;
 import org.collectionspace.services.client.AbstractCommonListUtils;
 import org.collectionspace.services.client.AuthorityClient;
@@ -41,17 +40,9 @@ import org.collectionspace.services.work.WorkTermGroupList;
 import org.collectionspace.services.work.WorkTermGroup;
 import org.collectionspace.services.work.WorkauthoritiesCommon;
 import org.collectionspace.services.work.WorksCommon;
-// possibly needed
-import org.collectionspace.services.work.CreatorGroupList;
-import org.collectionspace.services.work.CreatorGroup;
-import org.collectionspace.services.work.PublisherGroupList;
-import org.collectionspace.services.work.PublisherGroup;
- 
 import org.jboss.resteasy.client.ClientResponse;
- 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
- 
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.Test;
@@ -68,9 +59,6 @@ public class WorkAuthorityServiceTest extends AbstractAuthorityServiceTest<Worka
 	/** The logger. */
 	private final String CLASS_NAME = WorkAuthorityServiceTest.class.getName();
 	private final Logger logger = LoggerFactory.getLogger(WorkAuthorityServiceTest.class);
-	//private final String REFNAME = "refName";
-	//private final static String EMPTY_REFNAME = "";
-	//private final String DISPLAYNAME = "displayName";
  
 	@Override
 	public String getServicePathComponent() {
@@ -93,7 +81,7 @@ public class WorkAuthorityServiceTest extends AbstractAuthorityServiceTest<Worka
 	final String TEST_WORK_TERM_STATUS = "accepted";
 	final String TEST_WORK_TERM_QUALIFIER = "";
 	final String TEST_WORK_TERM_LANGUAGE = "";
-	final String TEST_WORK_TERM_PERFFORLANGUAGE = "";
+	final String TEST_WORK_TERM_PERFFORLANG = "";
 	final String TEST_WORK_TERM_SOURCE = "featurefilms";
 	final String TEST_WORK_TERM_SOURCE_DETAIL = "internal";
 	final String TEST_WORK_TERM_SOURCE_ID = "12345";	
@@ -109,8 +97,6 @@ public class WorkAuthorityServiceTest extends AbstractAuthorityServiceTest<Worka
 	final String TEST_WORK_PUBLISHER_GROUP_PUBLISHER_TYPE = "Distributor";
 	final String TEST_WORK_SHORT_IDENTIFIER = "muppetstakemanhattan";
 	final String TEST_WORK_REFNAME = "refname";
-	final CreatorGroupList NULL_WORK_CREATOR_GROUP_LIST = null;
-	final PublisherGroupList NULL_WORK_PUBLISHER_GROUP_LIST = null;
 	
 	/** The known resource id. */
 	private String knownResourceShortIdentifer = null;
@@ -141,42 +127,11 @@ public class WorkAuthorityServiceTest extends AbstractAuthorityServiceTest<Worka
 		
 		// Fields present in all authority records.
 		workMap.put(WorkJAXBSchema.WORK_SHORT_IDENTIFIER, TEST_WORK_SHORT_IDENTIFIER);
-		//TODO Make term status be controlled vocab.
-		
-		
 		workMap.put(WorkJAXBSchema.WORK_SCOPE_NOTE, TEST_WORK_SCOPE_NOTE);
 		workMap.put(WorkJAXBSchema.WORK_INDEXING_NOTE, TEST_WORK_INDEXING_NOTE);
 		workMap.put(WorkJAXBSchema.WORK_HISTORY_NOTE, TEST_WORK_HISTORY_NOTE);
-		workMap.put(WorkJAXBSchema.WORK_SOURCE_NOTE, TEST_WORK_SOURCE_NOTE);
 		workMap.put(WorkJAXBSchema.WORK_GENRE, TEST_WORK_GENRE);
 		workMap.put(WorkJAXBSchema.WORK_MEDIUM, TEST_WORK_MEDIUM);
-		/*workMap.put(WorkJAXBSchema.WORK_TERM_NAME, TEST_WORK_TERM_NAME);
-		workMap.put(WorkJAXBSchema.WORK_TERM_DISPLAY_NAME, TEST_WORK_TERM_DISPLAY_NAME);
-		workMap.put(WorkJAXBSchema.WORK_TERM_TYPE, TEST_WORK_TERM_TYPE);
-		workMap.put(WorkJAXBSchema.WORK_TERM_STATUS, TEST_WORK_TERM_STATUS);
-		workMap.put(WorkJAXBSchema.WORK_TERM_QUALIFIER, TEST_WORK_TERM_QUALIFIER);
-		workMap.put(WorkJAXBSchema.WORK_TERM_LANGUAGE, TEST_WORK_TERM_LANGUAGE);
-		workMap.put(WorkJAXBSchema.WORK_TERM_PERFFORLANGUAGE, TEST_WORK_TERM_PERFFORLANGUAGE);
-		workMap.put(WorkJAXBSchema.WORK_TERM_SOURCE, TEST_WORK_TERM_SOURCE);
-		workMap.put(WorkJAXBSchema.WORK_TERM_SOURCE_DETAIL, TEST_WORK_TERM_SOURCE_DETAIL);
-		workMap.put(WorkJAXBSchema.WORK_TERM_SOURCE_ID, TEST_WORK_TERM_SOURCE_ID);
-		workMap.put(WorkJAXBSchema.WORK_TERM_SOURCE_NOTE, TEST_WORK_TERM_SOURCE_NOTE);
-		*/
-		// complex field types
-
-        CreatorGroupList creatorGroupList = new CreatorGroupList();
-        List<CreatorGroup> creatorGroups = creatorGroupList.getCreatorGroup();
-        CreatorGroup creatorGroup = new CreatorGroup();
-        creatorGroup.setCreator(TEST_WORK_CREATOR_GROUP_CREATOR);
-        creatorGroup.setCreatorType(TEST_WORK_CREATOR_GROUP_CREATOR_TYPE);
-        creatorGroups.add(creatorGroup);
-
-        PublisherGroupList publisherGroupList = new PublisherGroupList();
-        List<PublisherGroup> publisherGroups = publisherGroupList.getPublisherGroup();
-        PublisherGroup publisherGroup = new PublisherGroup();
-        publisherGroup.setPublisher(TEST_WORK_PUBLISHER_GROUP_PUBLISHER);
-        publisherGroup.setPublisherType(TEST_WORK_PUBLISHER_GROUP_PUBLISHER_TYPE);
-        publisherGroups.add(publisherGroup);
 		
 		List<WorkTermGroup> terms = new ArrayList<WorkTermGroup>();
 		WorkTermGroup term = new WorkTermGroup();
@@ -194,7 +149,7 @@ public class WorkAuthorityServiceTest extends AbstractAuthorityServiceTest<Worka
 		terms.add(term);
 		
 		String newID = WorkAuthorityClientUtils.createItemInAuthority(vcsid, 
-						authRefName, workMap, creatorGroupList, publisherGroupList, terms, client);
+						authRefName, workMap, terms, client);
 
 		// Store the ID returned from the first item resource created
 		// for additional tests below.
@@ -333,11 +288,11 @@ public class WorkAuthorityServiceTest extends AbstractAuthorityServiceTest<Worka
 
 		for (AbstractCommonList.ListItem item : items) {
 			String value = AbstractCommonListUtils.ListItemGetElementValue(
-						item, WorkJAXBSchema.WORK_REFNAME);
+						item, WorkJAXBSchema.REF_NAME);
 			Assert.assertTrue((null != value), "Item refName is null!");
 			value = AbstractCommonListUtils.ListItemGetElementValue(item,
-						WorkJAXBSchema.WORK_DISPLAY_NAME);
-			Assert.assertTrue((null != value), "Item displayName is null!");
+						WorkJAXBSchema.DISPLAY_NAME);
+			Assert.assertTrue((null != value), "Item termDisplayName is null!");
 		}
 		if (logger.isTraceEnabled()) {
 			AbstractCommonListUtils.ListItemsInAbstractCommonList(list, logger,
@@ -486,7 +441,7 @@ public class WorkAuthorityServiceTest extends AbstractAuthorityServiceTest<Worka
 	protected WorkauthoritiesCommon updateInstance(WorkauthoritiesCommon workauthoritiesCommon) {
 		WorkauthoritiesCommon result = new WorkauthoritiesCommon();
 
-		result.setTermDisplayName("updated-" + workauthoritiesCommon.getTermDisplayName());
+		result.setDisplayName("updated-" + workauthoritiesCommon.getDisplayName());
 		result.setVocabType("updated-" + workauthoritiesCommon.getVocabType());
 
 		return result;
@@ -496,21 +451,9 @@ public class WorkAuthorityServiceTest extends AbstractAuthorityServiceTest<Worka
 	protected void compareUpdatedInstances(WorkauthoritiesCommon original,
 					WorkauthoritiesCommon updated) throws Exception {
 
-		WorkTermGroupList originalTermList = original.getWorkTermGroupList();
-		Assert.assertNotNull(originalTermList);
-		List<WorkTermGroup> originalTerms = originalTermList.getWorkTermGroup();
-		Assert.assertNotNull(originalTerms);
-		Assert.assertTrue(originalTerms.size() > 0);
-
-		WorkTermGroupList updatedTermList = updated.getWorkTermGroupList();
-		Assert.assertNotNull(updatedTermList);
-		List<WorkTermGroup> updatedTerms = updatedTermList.getWorkTermGroup();
-		Assert.assertNotNull(updatedTerms);
-		Assert.assertTrue(updatedTerms.size() > 0);
-
-		Assert.assertEquals(updatedTerms.get(0).getTermDisplayName(),
-			originalTerms.get(0).getTermDisplayName(),
-			"Value in updated record did not match submitted data.");
+		Assert.assertEquals(updated.getDisplayName(),
+			original.getDisplayName(), 
+			"Display name in updated object did not match submitted data.");
 					
 					
 		//Assert.assertEquals(updated.getTermDisplayName(),
@@ -520,7 +463,7 @@ public class WorkAuthorityServiceTest extends AbstractAuthorityServiceTest<Worka
  
 	protected void compareReadInstances(WorkauthoritiesCommon original,
 					WorkauthoritiesCommon fromRead) throws Exception {
-		Assert.assertNotNull(fromRead.getTermDisplayName());
+		Assert.assertNotNull(fromRead.getDisplayName());
 		Assert.assertNotNull(fromRead.getShortIdentifier());
 		Assert.assertNotNull(fromRead.getRefName());
 	}
@@ -536,28 +479,48 @@ public class WorkAuthorityServiceTest extends AbstractAuthorityServiceTest<Worka
  
 	@Override
 	protected WorksCommon updateItemInstance(WorksCommon worksCommon) {
-		WorksCommon result = new WorksCommon();
 
-		result.setTermDisplayName("updated-" + worksCommon.getTermDisplayName());
+        WorkTermGroupList termList = worksCommon.getWorkTermGroupList();
+        Assert.assertNotNull(termList);
+        List<WorkTermGroup> terms = termList.getWorkTermGroup();
+        Assert.assertNotNull(terms);
+        Assert.assertTrue(terms.size() > 0);
+        terms.get(0).setTermDisplayName("updated-" + terms.get(0).getTermDisplayName());
+        terms.get(0).setTermName("updated-" + terms.get(0).getTermName());
+	    worksCommon.setWorkTermGroupList(termList);
 
-		return result;
+        return worksCommon;
 	}
  
 	@Override
 	protected void compareUpdatedItemInstances(WorksCommon original,
 					WorksCommon updated) throws Exception {
-		Assert.assertEquals(updated.getTermDisplayName(), original.getTermDisplayName(),
-               "Data in updated Work did not match submitted data.");
+
+	    WorkTermGroupList originalTermList = original.getWorkTermGroupList();
+        Assert.assertNotNull(originalTermList);
+        List<WorkTermGroup> originalTerms = originalTermList.getWorkTermGroup();
+        Assert.assertNotNull(originalTerms);
+        Assert.assertTrue(originalTerms.size() > 0);
+        
+        WorkTermGroupList updatedTermList = updated.getWorkTermGroupList();
+        Assert.assertNotNull(updatedTermList);
+        List<WorkTermGroup> updatedTerms = updatedTermList.getWorkTermGroup();
+        Assert.assertNotNull(updatedTerms);
+        Assert.assertTrue(updatedTerms.size() > 0);
+        
+        Assert.assertEquals(updatedTerms.get(0).getTermDisplayName(),
+            originalTerms.get(0).getTermDisplayName(),
+            "Value in updated record did not match submitted data.");
 	}
  
 	@Override
 	protected void verifyReadItemInstance(WorksCommon item)
 				throws Exception {
-		// Copied from Taxon
-		Assert.assertNotNull(item.getTermDisplayName(), "Field value is unexpectedly null.");
-		Assert.assertEquals(item.getTermDisplayName(), TEST_WORK_TERM_DISPLAY_NAME,
-			"Field value " + item.getTermDisplayName()
-			+ "does not match expected value " + TEST_WORK_TERM_DISPLAY_NAME);
+		// Copied from Taxon -- Keep?
+		//Assert.assertNotNull(item.getTermDisplayName(), "Field value is unexpectedly null.");
+		//Assert.assertEquals(item.getTermDisplayName(), TEST_WORK_TERM_DISPLAY_NAME,
+		//	"Field value " + item.getTermDisplayName()
+		//	+ "does not match expected value " + TEST_WORK_TERM_DISPLAY_NAME);
 	}
  
 	@Override
@@ -570,8 +533,7 @@ public class WorkAuthorityServiceTest extends AbstractAuthorityServiceTest<Worka
 		final String EMPTY_REFNAME = "";
 
 		PoxPayloadOut result =
-				WorkAuthorityClientUtils.createWorkInstance(EMPTY_REFNAME, nonexMap, 
-					NULL_WORK_CREATOR_GROUP_LIST, NULL_WORK_PUBLISHER_GROUP_LIST,
+				WorkAuthorityClientUtils.createWorkInstance(EMPTY_REFNAME, nonexMap,
 					WorkAuthorityClientUtils.getTermGroupInstance(TEST_WORK_TERM_DISPLAY_NAME), commonPartName);
 		return result;
 	}

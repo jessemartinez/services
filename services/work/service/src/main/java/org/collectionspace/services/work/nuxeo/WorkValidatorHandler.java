@@ -25,7 +25,6 @@ package org.collectionspace.services.work.nuxeo;
 
 import java.util.List;
 import java.util.regex.Pattern;
-
 import org.collectionspace.services.common.api.Tools;
 import org.collectionspace.services.common.document.InvalidDocumentException;
 import org.collectionspace.services.common.document.ValidatorHandlerImpl;
@@ -45,8 +44,6 @@ import org.slf4j.LoggerFactory;
 public class WorkValidatorHandler extends ValidatorHandlerImpl {
 
     final Logger logger = LoggerFactory.getLogger(WorkValidatorHandler.class);
-    //private static final Pattern shortIdBadPattern = Pattern.compile("[\\W]"); //.matcher(input).matches()
-
 	// 'Bad pattern' for shortIdentifiers matches any non-word characters
     private static final Pattern SHORT_ID_BAD_PATTERN = Pattern.compile("[\\W]"); //.matcher(input).matches()
     private static final String VALIDATION_ERROR = "The record payload was invalid. See log file for more details.";

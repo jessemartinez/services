@@ -2,7 +2,7 @@
     <description>
         work service 3rdparty
     </description>
-  <!-- set global properties for this build -->
+    <!-- set global properties for this build -->
     <property name="services.trunk" value="../../.."/>
     <!-- enviornment should be declared before reading build.properties -->
     <property environment="env" />

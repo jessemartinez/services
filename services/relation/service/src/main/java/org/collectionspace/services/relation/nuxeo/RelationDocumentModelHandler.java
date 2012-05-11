@@ -56,6 +56,7 @@ import org.collectionspace.services.client.LocationAuthorityClient;
 import org.collectionspace.services.client.TaxonomyAuthorityClient;
 import org.collectionspace.services.client.PlaceAuthorityClient;
 import org.collectionspace.services.client.ConceptAuthorityClient;
+import org.collectionspace.services.client.WorkAuthorityClient;
 import org.collectionspace.services.client.workflow.WorkflowClient;
 
 import org.collectionspace.services.config.service.ServiceBindingType;
@@ -475,7 +476,7 @@ public class RelationDocumentModelHandler
 	    	else if(docType.startsWith("Conceptitem"))
 	    		common_schema = ConceptAuthorityClient.SERVICE_ITEM_COMMON_PART_NAME;
 			else if(docType.startsWith("Workitem"))
-	    		common_schema = ConceptAuthorityClient.SERVICE_ITEM_COMMON_PART_NAME;
+	    		common_schema = WorkAuthorityClient.SERVICE_ITEM_COMMON_PART_NAME;
 	    	//else leave it null.
     	}
     	return common_schema;

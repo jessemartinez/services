@@ -57,36 +57,7 @@ public class WorkDocumentModelHandler
         return WorkAuthorityClient.SERVICE_PATH_COMPONENT;    //  CSPACE-3932
     }
 	
-   /**
-     * Handle display name.
-     *
-     * @param docModel the doc model
-     * @throws Exception the exception
-     
-	/*@Override
-	protected void handleComputedDisplayNames(DocumentModel docModel) throws Exception {
-		String commonPartLabel = getServiceContext().getCommonPartLabel("works");
-		Boolean displayNameComputed = (Boolean) docModel.getProperty(commonPartLabel,
-				WorkJAXBSchema.DISPLAY_NAME_COMPUTED);
-		Boolean shortDisplayNameComputed = (Boolean) docModel.getProperty(commonPartLabel,
-				WorkJAXBSchema.SHORT_DISPLAY_NAME_COMPUTED);
-		if(displayNameComputed==null)
-			displayNameComputed = true;
-		if(shortDisplayNameComputed==null)
-			shortDisplayNameComputed = true;
-		if (displayNameComputed || shortDisplayNameComputed) {
-			String displayName = prepareDefaultDisplayName(
-				(String) docModel.getProperty(commonPartLabel, WorkJAXBSchema.DISPLAY_NAME)); 
-			if (displayNameComputed) {
-				docModel.setProperty(commonPartLabel, WorkJAXBSchema.DISPLAY_NAME, displayName);
-			}
-			if (shortDisplayNameComputed) {
-				docModel.setProperty(commonPartLabel, WorkJAXBSchema.SHORT_DISPLAY_NAME, displayName);
-			}
-		}
-	}
-	*/
-   /**
+    /**
      * Produces a default displayName from one or more supplied fields.
      * @see WorkAuthorityClientUtils.prepareDefaultDisplayName() which
      * duplicates this logic, until we define a service-general utils package

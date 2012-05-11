@@ -22,16 +22,6 @@
 	<xs:element name="inAuthority" type="xs:string"/>
 	<xs:element name="shortIdentifier" type="xs:string"/>
 	<xs:element name="refName" type="xs:string"/>
-	
-	<!-- original schema -->
-	<!--<xs:element name="termStatus" type="xs:string"/> <!-- ok -->
-	<!--<xs:element name="displayName" type="xs:string"/> <!-- termDisplayName -->
-	<!--<xs:element name="displayNameComputed" type="xs:boolean"/> <!-- out -->
-    <!--<xs:element name="shortDisplayName" type="xs:string"/> <!-- termName -->
-    <!--<xs:element name="shortDisplayNameComputed" type="xs:boolean"/> <!-- out -->
-    <!--<xs:element name="source" type="xs:string"/> <!-- termSource -->
-    <!--<xs:element name="sourcePage" type="xs:string"/> <!-- out -->
-    <!--<xs:element name="description" type="xs:string"/> <!-- out -->
 
 	<xs:element name="scopeNote" type="xs:string"/>
 	<xs:element name="indexingNote" type="xs:string"/>
@@ -39,14 +29,17 @@
 	<xs:element name="genre" type="xs:string"/>
 	<xs:element name="medium" type="xs:string"/>
 	
-	<!-- List of workTerms -->
+	<!-- List of WorkTerms -->
 	<xs:element name="workTermGroupList" type="workTermGroupList"/>
 	
-	<!--  List of Creators -->
+	<!-- List of Creators -->
 	<xs:element name="creatorGroupList" type="creatorGroupList"/>
 	
-	<!--  List of additional Work Term sources  -->
+	<!-- List of Publishers -->
 	<xs:element name="publisherGroupList" type="publisherGroupList"/>
+
+	<!-- List of Structured Dates -->
+	<xs:element name="workDateGroupList" type="workDateGroupList"/>
 
 <!-- =================================================================
 	 Work Term Group repeating structure
@@ -115,8 +108,6 @@
 	 Structured Date repeating structure
 	 ================================================================= -->
 	
-	<xs:element name="workDateGroupList" type="workDateGroupList"/>
-
 	<xs:complexType name="workDateGroupList">
 		<xs:sequence>
 			<xs:element name="workDateGroup" type="structuredDateGroup" minOccurs="0"
