@@ -2802,11 +2802,11 @@
                         </types:item>
                         <types:item xmlns:types="http://collectionspace.org/services/config/types">
                             <types:key>termRef</types:key>
-                            <types:value>workTermGroup/*/termStatus</types:value>
+                            <types:value>workTermGroupList/*/termStatus</types:value> 
                         </types:item>
                         <types:item xmlns:types="http://collectionspace.org/services/config/types">
                             <types:key>termRef</types:key>
-                            <types:value>workTermGroup/*/termSource</types:value>
+                            <types:value>workTermGroupList/*/termSource</types:value>
                         </types:item>
                     </service:properties>
                     <service:content contentType="application/xml">
