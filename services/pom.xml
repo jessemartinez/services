@@ -71,7 +71,7 @@
         <module>contact</module>
         <module>workflow</module>
         <module>media</module>
-		<module>work</module>
+        <module>work</module>
         <module>JaxRsServiceProvider</module>
         <!--module>sdk</module-->
         <module>IntegrationTests</module>
