@@ -20,6 +20,10 @@
       <schema name="collectionspace_core"/>
       <schema name="dublincore"/>
       <schema name="works_common"/>
+      <prefetch>
+	works_common:workTermGroupList/0/termDisplayName
+	works_common:refName
+	works_common:shortIdentifier
     </doctype>
   </extension>
 </component>

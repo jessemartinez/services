@@ -142,7 +142,7 @@ public class WorkValidatorHandler extends ValidatorHandlerImpl {
         WorkTermGroupList termGroupList = work.getWorkTermGroupList();
         List<WorkTermGroup> termGroups = termGroupList.getWorkTermGroup();
         for (WorkTermGroup termGroup : termGroups) {
-            if (Tools.isBlank(termGroup.getTermName()) || Tools.isBlank(termGroup.getTermDisplayName())) {
+            if (Tools.isBlank(termGroup.getTermName()) && Tools.isBlank(termGroup.getTermDisplayName())) {
                 return false;
             }
         }
