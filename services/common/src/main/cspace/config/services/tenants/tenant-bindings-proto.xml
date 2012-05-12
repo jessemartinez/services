@@ -2749,8 +2749,8 @@
                         <service:col>inauthority</service:col>
                     </service:field>
                     <service:field>
-                        <service:table>works_common</service:table>
-                        <service:col>displayname</service:col>
+                        <service:table>worktermgroup</service:table>
+                        <service:col>termdisplayname</service:col>
                     </service:field>
                     <service:field>
                         <service:table>works_common</service:table>
@@ -2799,6 +2799,14 @@
                         <types:item xmlns:types="http://collectionspace.org/services/config/types">
                             <types:key>termRef</types:key>
                             <types:value>publisherGroupList/*/publisherType</types:value>
+                        </types:item>
+                        <types:item xmlns:types="http://collectionspace.org/services/config/types">
+                            <types:key>termRef</types:key>
+                            <types:value>workTermGroup/*/termStatus</types:value>
+                        </types:item>
+                        <types:item xmlns:types="http://collectionspace.org/services/config/types">
+                            <types:key>termRef</types:key>
+                            <types:value>workTermGroup/*/termSource</types:value>
                         </types:item>
                     </service:properties>
                     <service:content contentType="application/xml">
