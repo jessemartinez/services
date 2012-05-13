@@ -291,7 +291,7 @@ public class WorkAuthorityServiceTest extends AbstractAuthorityServiceTest<Worka
 						item, WorkJAXBSchema.REF_NAME);
 			Assert.assertTrue((null != value), "Item refName is null!");
 			value = AbstractCommonListUtils.ListItemGetElementValue(item,
-						WorkJAXBSchema.DISPLAY_NAME);
+						WorkJAXBSchema.WORK_TERM_DISPLAY_NAME);
 			Assert.assertTrue((null != value), "Item termDisplayName is null!");
 		}
 		if (logger.isTraceEnabled()) {
