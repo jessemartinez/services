@@ -93,7 +93,7 @@ public class WorkAuthorityServiceTest extends AbstractAuthorityServiceTest<Worka
 	final String TEST_WORK_TERM_STATUS = "accepted";
 	final String TEST_WORK_TERM_QUALIFIER = "";
 	final String TEST_WORK_TERM_LANGUAGE = "";
-	final String TEST_WORK_TERM_PERFFORLANGUAGE = "";
+	final String TEST_WORK_TERM_PREFFORLANG = "";
 	final String TEST_WORK_TERM_SOURCE = "featurefilms";
 	final String TEST_WORK_TERM_SOURCE_DETAIL = "internal";
 	final String TEST_WORK_TERM_SOURCE_ID = "12345";	
@@ -184,7 +184,7 @@ public class WorkAuthorityServiceTest extends AbstractAuthorityServiceTest<Worka
 		term.setTermName(TEST_WORK_TERM_NAME);
 		term.setTermType(TEST_WORK_TERM_TYPE);
 		term.setTermLanguage(TEST_WORK_TERM_LANGUAGE);
-		term.setTermPerfForLang(TEST_WORK_TERM_PERFFORLANG);
+		term.setTermPrefForLang(TEST_WORK_TERM_PREFFORLANG);
 		term.setTermQualifier(TEST_WORK_TERM_QUALIFIER);
 		term.setTermSource(TEST_WORK_TERM_SOURCE);
 		term.setTermSourceDetail(TEST_WORK_TERM_SOURCE_DETAIL);
