@@ -31,7 +31,7 @@ public interface WorkJAXBSchema extends AuthorityItemJAXBSchema {
 	final static String WORK_TERM_STATUS = "termStatus";
 	final static String WORK_TERM_QUALIFIER = "termQualifier";
 	final static String WORK_TERM_LANGUAGE = "termLanguage";
-	final static String WORK_TERM_PERFFORLANGUAGE = "termPerfForLang";
+	final static String WORK_TERM_PREFFORLANGUAGE = "termPrefForLang";
 	final static String WORK_TERM_SOURCE = "termSource";
 	final static String WORK_TERM_SOURCE_DETAIL = "termSourceDetail";
 	final static String WORK_TERM_SOURCE_ID = "termSourceID";
