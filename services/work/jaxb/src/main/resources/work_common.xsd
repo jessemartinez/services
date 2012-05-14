@@ -73,7 +73,7 @@
 			<xs:element name="termStatus" type="xs:string"/>
 			<xs:element name="termQualifier" type="xs:string"/>
 			<xs:element name="termLanguage" type="xs:string"/>
-			<xs:element name="termPrefForLang" type="xs:string"/>
+			<xs:element name="termPrefForLang" type="xs:boolean"/>
 			<xs:element name="termSource" type="xs:string"/>
 			<xs:element name="termSourceDetail" type="xs:string"/>
 			<xs:element name="termSourceID" type="xs:string"/>
