@@ -48,15 +48,15 @@ public class WorkValidatorHandler extends ValidatorHandlerImpl {
     //private static final Pattern shortIdBadPattern = Pattern.compile("[\\W]"); //.matcher(input).matches()
 
 	// 'Bad pattern' for shortIdentifiers matches any non-word characters
-    private static final Pattern SHORT_ID_BAD_PATTERN = Pattern.compile("[\\W]"); //.matcher(input).matches()
-    private static final String VALIDATION_ERROR = "The record payload was invalid. See log file for more details.";
+    private static final Pattern SHORT_ID_BAD_PATTERN = Pattern.compile("[\\W]");
+    private static final String VALIDATION_ERROR = 
+            "The record payload was invalid. See log file for more details.";
     private static final String SHORT_ID_BAD_CHARS_ERROR =
             "shortIdentifier must only contain standard word characters";
     private static final String HAS_NO_TERMS_ERROR =
             "Authority items must contain at least one term.";
-    private static final String HAS_AN_EMPTY_TERM_ERROR =
+    private static final String TERM_HAS_EMPTY_DISPLAYNAME_ERROR =
             "Each term group in an authority item must contain "
-            + "a non-empty term name or "
             + "a non-empty term display name.";
 	
 	
@@ -76,7 +76,7 @@ public class WorkValidatorHandler extends ValidatorHandlerImpl {
                     CS_ASSERT(shortIdentifierContainsOnlyValidChars(shortId), SHORT_ID_BAD_CHARS_ERROR);
                 }
                 CS_ASSERT(containsAtLeastOneTerm(work), HAS_NO_TERMS_ERROR);
-                CS_ASSERT(allTermsContainNameOrDisplayName(work), HAS_AN_EMPTY_TERM_ERROR);
+                CS_ASSERT(allTermsContainDisplayName(work), TERM_HAS_EMPTY_DISPLAYNAME_ERROR);
             } catch (AssertionError e) {
                 if (logger.isErrorEnabled()) {
                     logger.error(e.getMessage(), e);
@@ -104,7 +104,7 @@ public class WorkValidatorHandler extends ValidatorHandlerImpl {
                 // prevented from being changed on an update, and thus
                 // we don't need to check its value here.
                 CS_ASSERT(containsAtLeastOneTerm(work), HAS_NO_TERMS_ERROR);
-                CS_ASSERT(allTermsContainNameOrDisplayName(work), HAS_AN_EMPTY_TERM_ERROR);
+                CS_ASSERT(allTermsContainDisplayName(work), TERM_HAS_EMPTY_DISPLAYNAME_ERROR);
             } catch (AssertionError e) {
                 if (logger.isErrorEnabled()) {
                     logger.error(e.getMessage(), e);
@@ -138,11 +138,11 @@ public class WorkValidatorHandler extends ValidatorHandlerImpl {
         return true;
     }
 
-    private boolean allTermsContainNameOrDisplayName(WorksCommon work) {
+    private boolean allTermsContainDisplayName(WorksCommon work) {
         WorkTermGroupList termGroupList = work.getWorkTermGroupList();
         List<WorkTermGroup> termGroups = termGroupList.getWorkTermGroup();
         for (WorkTermGroup termGroup : termGroups) {
-            if (Tools.isBlank(termGroup.getTermName()) && Tools.isBlank(termGroup.getTermDisplayName())) {
+            if (Tools.isBlank(termGroup.getTermDisplayName())) {
                 return false;
             }
         }
