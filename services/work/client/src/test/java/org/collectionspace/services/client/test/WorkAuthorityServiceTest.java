@@ -92,8 +92,8 @@ public class WorkAuthorityServiceTest extends AbstractAuthorityServiceTest<Worka
 	final String TEST_WORK_TERM_TYPE = "";
 	final String TEST_WORK_TERM_STATUS = "accepted";
 	final String TEST_WORK_TERM_QUALIFIER = "";
-	final String TEST_WORK_TERM_LANGUAGE = "";
-	final String TEST_WORK_TERM_PREFFORLANG = "";
+	final String TEST_WORK_TERM_LANGUAGE = "english";
+	final Boolean TEST_WORK_TERM_PREFFORLANG = true;
 	final String TEST_WORK_TERM_SOURCE = "featurefilms";
 	final String TEST_WORK_TERM_SOURCE_DETAIL = "internal";
 	final String TEST_WORK_TERM_SOURCE_ID = "12345";	
