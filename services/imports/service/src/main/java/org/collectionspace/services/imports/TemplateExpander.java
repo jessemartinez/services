@@ -208,7 +208,6 @@ public class TemplateExpander {
     private static String getDocUri(String tenantId, String docType, String docID,
             String partTmpl) throws Exception {
 
-
         TenantBindingConfigReaderImpl tReader = ServiceMain.getInstance().getTenantBindingConfigReader();
         // We may have been supplied with the tenant-qualified name
         // of an extension to a document type, and thus need to
