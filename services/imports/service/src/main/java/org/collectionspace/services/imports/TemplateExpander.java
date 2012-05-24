@@ -24,7 +24,6 @@
 
 package org.collectionspace.services.imports;
 
-<<<<<<< HEAD
 import java.io.StringReader;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -33,6 +32,7 @@ import java.util.UUID;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
+
 import org.collectionspace.services.common.IFragmentHandler;
 import org.collectionspace.services.common.ServiceMain;
 import org.collectionspace.services.common.XmlSaxFragmenter;
@@ -159,6 +159,7 @@ public class TemplateExpander {
                 getAttributeValue(perRecordAttributes, UPDATED_BY_ATTRIBUTE));
         wrapperTmpl = Tools.searchAndReplace(wrapperTmpl, var("uri"),
                 getDocUri(tenantId, SERVICE_TYPE, docID, partTmpl));
+
         String serviceDir = outDir+'/'+docID;
         FileTools.saveFile(serviceDir, "document.xml", wrapperTmpl, FileTools.FORCE_CREATE_PARENT_DIRS);
         return docID;
