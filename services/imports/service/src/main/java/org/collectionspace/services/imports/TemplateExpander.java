@@ -24,25 +24,19 @@
 
 package org.collectionspace.services.imports;
 
-import java.io.StringReader;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
-import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathExpressionException;
-import javax.xml.xpath.XPathFactory;
+
 import org.collectionspace.services.client.AuthorityClient;
-import org.collectionspace.services.common.IFragmentHandler;
-import org.collectionspace.services.common.ServiceMain;
-import org.collectionspace.services.common.XmlSaxFragmenter;
-import org.collectionspace.services.common.XmlTools;
+import org.collectionspace.services.common.*;
 import org.collectionspace.services.common.api.FileTools;
 import org.collectionspace.services.common.api.Tools;
 import org.collectionspace.services.common.config.TenantBindingConfigReaderImpl;
-import org.collectionspace.services.common.context.ServiceBindingUtils;
 import org.collectionspace.services.common.datetime.GregorianCalendarDateTimeUtils;
 import org.collectionspace.services.config.service.ServiceBindingType;
 import org.collectionspace.services.nuxeo.util.NuxeoUtils;
+
 import org.dom4j.Document;
 import org.dom4j.Element;
 import org.xml.sax.InputSource;
@@ -56,11 +50,8 @@ import org.xml.sax.InputSource;
  * @author Laramie Crocker
  */
 public class TemplateExpander {
-    
-    private static Map<String,String> docTypeSvcNameRegistry = new HashMap<String,String>();
-    private static XPath xpath = XPathFactory.newInstance().newXPath();
-    private static final String IN_AUTHORITY_NAMESPACE_XPATH = "//*[local-name()='inAuthority']";
-    private static final String IN_AUTHORITY_NO_NAMESPACE_XPATH = "//inAuthority";
+
+    static Map<String,String> docTypeSvcNameRegistry = new HashMap<String,String>();
 
     protected static String var(String theVar){
         return "\\$\\{"+theVar+"\\}";
@@ -97,7 +88,15 @@ public class TemplateExpander {
         wrapperTmpl = searchAndReplaceVar(wrapperTmpl, "updatedDate", nowTime);
         
         wrapperTmpl = Tools.searchAndReplace(wrapperTmpl, var("uri"),
-                getDocUri(tenantId, SERVICE_TYPE, docID, partTmpl));
+                getDocUri(tenantId, SERVICE_TYPE, docID));
+
+        /*
+        TenantBindingConfigReaderImpl tReader = ServiceMain.getInstance().getTenantBindingConfigReader();
+        ServiceBindingType sb = tReader.getServiceBindingForDocType(tenantId, SERVICE_TYPE);
+	String uri = "/" + sb.getName().toLowerCase() + "/" + docID;
+        wrapperTmpl = Tools.searchAndReplace(wrapperTmpl, var("uri"), uri);
+        * 
+        */
 
         String serviceDir = outDir+'/'+docID;
         FileTools.saveFile(serviceDir, "document.xml", wrapperTmpl, true/*true=create parent dirs*/);
@@ -140,132 +139,71 @@ public class TemplateExpander {
         XmlSaxFragmenter.parse(requestSource, chopPath, callback, false);
     }
 
-    // The docType parameter here is matched to the SERVICE_TYPE argument in
-    // the calling method doOneService(), above; both refer to a per-service
-    // document type name
-    private static String getDocUri(String tenantId, String docType, String docID,
-            String partTmpl) throws Exception {
+    private static String getDocUri(String tenantId, String SERVICE_TYPE, String docID) throws Exception {
         
-        // FIXME: This is a quick hack, which assumes that URI construction
-        // behaviors are bound to categories of services.  Those behaviors
-        // should instead be specified on a per-service basis via a registry,
-        // the mechanism we are intending to use in v2.5.  (See comments below
-        // for more details.) - ADR 2012-05-24
-        final String AUTHORITY_SERVICE_CATEGORY = "authority";
-        final String OBJECT_SERVICE_CATEGORY = "object";
-        final String PROCEDURE_SERVICE_CATEGORY = "procedure";
+        // FIXME: Use already-defined constants, likely to be found in another package
+        final String AUTHORITY_TYPE = "authority";
+        final String OBJECT_TYPE = "object";
+        final String PROCEDURE_TYPE = "procedure";
 
         TenantBindingConfigReaderImpl tReader = ServiceMain.getInstance().getTenantBindingConfigReader();
-        // We may have been supplied with the tenant-qualified name
-        // of an extension to a document type, and thus need to
-        // get the base document type name.
-        docType = ServiceBindingUtils.getUnqualifiedTenantDocType(docType);
-        ServiceBindingType sb =
-            tReader.getServiceBindingForDocType(tenantId, docType);        
-
-        String serviceCategory = sb.getType();
+        ServiceBindingType sb = tReader.getServiceBindingForDocType(tenantId, SERVICE_TYPE);
+        
+        String serviceType = sb.getType();
+        String serviceName = "";
         String uri = "";
-        if (serviceCategory.equalsIgnoreCase(AUTHORITY_SERVICE_CATEGORY)) {
-            String authoritySvcName = getAuthoritySvcName(docType);
+        if (serviceType.equalsIgnoreCase(AUTHORITY_TYPE)) {
+            String authoritySvcName = getAuthoritySvcName(SERVICE_TYPE);
             if (authoritySvcName == null) {
                 return uri;
             }
-            String inAuthorityID = getInAuthorityValue(partTmpl);
-            uri = getAuthorityItemUri(authoritySvcName, inAuthorityID, docID);
-       } else if (serviceCategory.equalsIgnoreCase(OBJECT_SERVICE_CATEGORY) ||
-               serviceCategory.equalsIgnoreCase(PROCEDURE_SERVICE_CATEGORY) ) {
-            String serviceName = sb.getName().toLowerCase();
+            // FIXME: Get the inAuthority value from the payload or from a new param for this method
+            String inAuthorityID = "inAuthorityValueHere"; // stub
+            uri = getAuthorityUri(authoritySvcName, inAuthorityID, docID);
+       } else if (serviceType.equalsIgnoreCase(OBJECT_TYPE) ||
+               serviceType.equalsIgnoreCase(PROCEDURE_TYPE) ) {
+            serviceName = sb.getName().toLowerCase();
             uri = getUri(serviceName, docID);
        } else {
            // Currently returns a blank URI for any other cases,
            // including sub-resources like contacts
          }
+        System.out.println("uri=" + uri); // temp for debugging
         return uri;
     }
     
-    // FIXME: This is a quick hack; a stub / mock of a registry of
-    // authority document types and their associated parent authority
-    // service names. This MUST be replaced by a more general mechanism
-    // in v2.5. 
-    // 
-    // Per Patrick, this registry needs to be available system-wide, not
-    // just here in the Imports service; extend to all relevant record types;
-    // and be automatically built in some manner, such as via per-resource
-    // registration, from configuration, etc. - ADR 2012-05-24
+    // Stub / mock of a registry of authority document types and their
+    // associated parent authority service names
     private static Map<String,String> getDocTypeSvcNameRegistry() {
         if (docTypeSvcNameRegistry.isEmpty()) {
-            docTypeSvcNameRegistry.put("Conceptitem", "Conceptauthorities");
-            docTypeSvcNameRegistry.put("Locationitem", "Locationauthorities");
+            docTypeSvcNameRegistry.put("Concept", "Conceptauthorities");
+            docTypeSvcNameRegistry.put("Location", "Locationauthorities");
             docTypeSvcNameRegistry.put("Person", "Personauthorities");
-            docTypeSvcNameRegistry.put("Placeitem", "Placeauthorities");
+            docTypeSvcNameRegistry.put("Place", "Placeauthorities");
             docTypeSvcNameRegistry.put("Organization", "Orgauthorities");
-            docTypeSvcNameRegistry.put("Taxon", "Taxonomyauthority");
-            docTypeSvcNameRegistry.put("Workitem", "Workauthorities");
+            docTypeSvcNameRegistry.put("Taxon", "Taxonauthority");
         }
         return docTypeSvcNameRegistry;
     }
     
-    /**
-     * Return the parent authority service name, based on the item document type.
-     */
     private static String getAuthoritySvcName(String docType) {
         return getDocTypeSvcNameRegistry().get(docType);
     }
     
-    // FIXME: The following URI construction methods are also intended to be
-    // made generally available and associated to individual services, via the
-    // registry mechanism described above. - ADR, 2012-05-24
     private static String getUri(String serviceName, String docID) {
         return "/" + serviceName
                 + "/" + docID;
     }
 
-    private static String getAuthorityItemUri(String authorityServiceName, String inAuthorityID, String docID) {
+    private static String getAuthorityUri(String authorityServiceName, String inAuthorityID, String docID) {
         return "/" + authorityServiceName.toLowerCase()
                 + '/' + inAuthorityID
                 + '/' + AuthorityClient.ITEMS
                 + '/' + docID;
     }
     
-    // FIXME: Create equivalent getUri-type method(s) for sub-resources,
-    // such as contacts - ADR, 2012-05-24
-    
-    // FIXME: It may also be desirable to explicitly validate the format of
-    // CSID values provided in fields such as inAuthority, and perhaps later on,
-    // their uniqueness against those already present in a running system.
-    // - ADR 2012-05-24
-    private static String getInAuthorityValue(String xmlFragment) {
-        String inAuthorityValue = "";
-        // Check in two ways for the inAuthority value: one intended for records with
-        // namespace-qualified elements, the second for unqualified elements.
-        // (There may be a more elegant way to do this with a single XPath expression,
-        // via an OR operator or the like.)
-        inAuthorityValue = extractValueFromXmlFragment(IN_AUTHORITY_NAMESPACE_XPATH, xmlFragment);
-        if (Tools.isBlank(inAuthorityValue)) {
-            inAuthorityValue = extractValueFromXmlFragment(IN_AUTHORITY_NO_NAMESPACE_XPATH, xmlFragment);
-        }
-        return inAuthorityValue;
-    }
-    
-    // FIXME: Need to handle cases here where the xmlFragment may contain more
-    // than one matching expression. (Simply matching on instance [0] within
-    // the XPath expression might not be reasonable, as it won't always be
-    // evident if that specific value is pertinent.) - ADR 2012-05-24
-    private static String extractValueFromXmlFragment(String xpathExpr, String xmlFragment) {
-        String value = "";
-        try {
-            // FIXME: Cruelly ugly hack; at this point for imported records
-            // with more than one <schema> child, we have a non-well-formed fragment.
-            String xmlFragmentWrapped = "<root>" + xmlFragment + "</root>";
-            InputSource input = new InputSource(new StringReader(xmlFragmentWrapped));
-            value = xpath.evaluate(xpathExpr, input);
-        } catch (XPathExpressionException e) {
-            System.out.println(e.getMessage());
-        }
-        return value;
+    // FIXME: Create equivalent getUri-type method(s) for sub-resources, such as contacts
 
-    }
-    
     /** This inner class is the callback target for calls to XmlSaxFragmenter, for example:
      *     FragmentHandlerImpl callback = new FragmentHandlerImpl();
      *     XmlSaxFragmenter.parse(filename, "/imports/import", callback, false);
