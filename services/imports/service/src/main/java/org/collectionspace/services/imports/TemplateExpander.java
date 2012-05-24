@@ -24,6 +24,7 @@
 
 package org.collectionspace.services.imports;
 
+<<<<<<< HEAD
 import java.io.StringReader;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -158,7 +159,6 @@ public class TemplateExpander {
                 getAttributeValue(perRecordAttributes, UPDATED_BY_ATTRIBUTE));
         wrapperTmpl = Tools.searchAndReplace(wrapperTmpl, var("uri"),
                 getDocUri(tenantId, SERVICE_TYPE, docID, partTmpl));
-
         String serviceDir = outDir+'/'+docID;
         FileTools.saveFile(serviceDir, "document.xml", wrapperTmpl, FileTools.FORCE_CREATE_PARENT_DIRS);
         return docID;
