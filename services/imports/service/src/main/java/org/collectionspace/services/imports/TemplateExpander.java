@@ -32,7 +32,6 @@ import java.util.UUID;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
-
 import org.collectionspace.services.common.IFragmentHandler;
 import org.collectionspace.services.common.ServiceMain;
 import org.collectionspace.services.common.XmlSaxFragmenter;
