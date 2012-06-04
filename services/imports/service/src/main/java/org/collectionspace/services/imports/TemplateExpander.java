@@ -200,6 +200,7 @@ public class TemplateExpander {
             docTypeSvcNameRegistry.put("Placeitem", "Placeauthorities");
             docTypeSvcNameRegistry.put("Organization", "Orgauthorities");
             docTypeSvcNameRegistry.put("Taxon", "Taxonomyauthority");
+            docTypeSvcNameRegistry.put("Workitem", "Workauthorities");
         }
         return docTypeSvcNameRegistry;
     }
