@@ -5,6 +5,17 @@
 	    	 
     <tenant:tenantBinding id="42" name="movingimage.us" displayName="CollectionSpace Core MMI Tenant" version="0.1">
         <tenant:repositoryDomain name="default-domain" storageName="mmi-domain" repositoryClient="nuxeo-java" />
+
+	<tenant:serviceBindings merge:matcher="id" id="Acquisitions">
+            <service:object xmlns:service="http://collectionspace.org/services/config/service" >
+                <service:part id="42" merge:matcher="skip" merge:action="insert" control_group="Managed" versionable="true" auditable="false" label="acquisitions_mmi" updated="" order="3">
+                    <service:content contentType="application/xml">
+                        <service:xmlContent namespaceURI="http://collectionspace.org/services/acquisition/local/mmi" schemaLocation="http://collectionspace.org/services/acquisition/local/mmi http://collectionspace.org/services/acquisition/local/acquisitions_mmi.xsd" />
+                     </service:content>
+                </service:part>
+            </service:object>
+        </tenant:serviceBindings>
+
     </tenant:tenantBinding>
 	    	       
 </tenant:TenantBindingConfig>
