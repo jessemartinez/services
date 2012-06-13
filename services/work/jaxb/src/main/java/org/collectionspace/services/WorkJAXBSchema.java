@@ -16,6 +16,10 @@ public interface WorkJAXBSchema extends AuthorityItemJAXBSchema {
 	final static String WORK_GENRE = "genre";
 	final static String WORK_MEDIUM = "medium";
 
+	final static String WORK_MIGRATED_ENTITY_GROUP_LIST = "migratedEntityGroupList";
+	final static String WORK_MIGRATED_ENTITY_GROUP_MIGRATED_ENTITY = "migratedEntity";
+	final static String WORK_MIGRATED_ENTITY_GROUP_MIGRATED_ENTITY_TYPE = "migratedEntityType";
+
 	final static String WORK_CREATOR_GROUP_LIST = "creatorGroupList";
 	final static String WORK_CREATOR_GROUP_CREATOR = "creator";
 	final static String WORK_CREATOR_GROUP_CREATOR_TYPE = "creatorType";
