@@ -103,6 +103,8 @@ public class WorkAuthorityServiceTest extends AbstractAuthorityServiceTest<Worka
 	final String TEST_WORK_HISTORY_NOTE = "history note goes here";
 	final String TEST_WORK_GENRE = "comedy";
 	final String TEST_WORK_MEDIUM = "film";
+	final String TEST_WORK_MIGRATED_ENTITY_GROUP_MIGRATED_ENTITY = "foo";
+	final String TEST_WORK_MIGRATED_ENTITY_GROUP_MIGRATED_ENTITY_TYPE = "artist";
 	final String TEST_WORK_CREATOR_GROUP_CREATOR = "Frank Oz";
 	final String TEST_WORK_CREATOR_GROUP_CREATOR_TYPE = "director";
 	final String TEST_WORK_PUBLISHER_GROUP_PUBLISHER = "TriStar Pictures";
