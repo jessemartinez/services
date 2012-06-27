@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+
+<!--
+    Media schema (XSD)
+    
+    Entity  : Media
+    Part    : Local  - Museum of the Moving Image (MMI)
+    Used for: Nuxeo EP core document type
+
+    $LastChangedRevision: $
+    $LastChangedDate: $
+-->
+
+<xs:schema 
+    xmlns:xs="http://www.w3.org/2001/XMLSchema"
+    xmlns:ns="http://collectionspace.org/services/media/local/mmi"
+    xmlns="http://collectionspace.org/services/media/local/mmi"
+    targetNamespace="http://collectionspace.org/services/media/local/mmi"
+    version="0.1">
+    
+    <!-- See http://wiki.collectionspace.org/display/collectionspace/Media+Handling+Schema -->
+
+    <!--  Media Information Group -->
+    <xs:element name="isPrimary" type="xs:boolean"/>
+    <xs:element name="isOriginalMedia" type="xs:boolean"/>
+    <xs:element name="mediaStatus" type="xs:string"/>
+
+</xs:schema>
