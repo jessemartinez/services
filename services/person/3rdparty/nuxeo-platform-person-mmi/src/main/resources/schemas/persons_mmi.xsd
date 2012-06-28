@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+
+<!--
+    MMI Person schema (XSD)
+    
+    Entity  : Person
+    Part    : local - Museum of the Moving Image (MMI)
+    Used for: Nuxeo EP core document type
+    
+    $LastChangedRevision: $
+    $LastChangedDate: $
+-->
+
+<xs:schema 
+  xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  xmlns:ns="http://collectionspace.org/services/person/local/mmi"
+  xmlns="http://collectionspace.org/services/person/local/mmi"
+  targetNamespace="http://collectionspace.org/services/person/local/mmi"
+  version="0.1"
+>
+<!-- See http://wiki.collectionspace.org/display/collectionspace/Person+Service+Home -->
+
+    <xs:element name="affiliatedPersonOrgGroupList" type="affiliatedPersonOrgGroupList"/>
+ 
+    <xs:complexType name="affiliatedPersonOrgGroupList">
+      <xs:sequence>
+            <xs:element name="affiliatedPersonOrgGroup" type="affiliatedPersonOrgGroup" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+  
+    <xs:complexType name="affiliatedPersonOrgGroup">
+        <xs:sequence>
+            <xs:element name="affiliatedPersonOrg" type="xs:string"/>
+            <xs:element name="affiliatedPersonOrgType" type="xs:string"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:element name="nameSource" type="xs:string"/>
+    <xs:element name="lifeSpan" type="xs:string"/>
+    <xs:element name="scopeNote" type="xs:string"/>
+    <xs:element name="sourceNote" type="xs:string"/>
+    <xs:element name="orgContactNames">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="orgContactName" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="nameFunctions">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="nameFunction" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+</xs:schema>

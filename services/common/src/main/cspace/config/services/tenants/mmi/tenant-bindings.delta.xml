@@ -7,7 +7,7 @@
         <tenant:repositoryDomain name="default-domain" storageName="mmi-domain" repositoryClient="nuxeo-java" />
 
         <tenant:serviceBindings merge:matcher="id" id="Media">
-            <service:DocHandlerParams xmlns:service="http://collectionspace.org/services/common/service">
+            <service:DocHandlerParams xmlns:service="http://collectionspace.org/services/config/service">
                 <service:params>
                     <service:ListResultsFields>
                         <service:ListResultField merge:matcher="skip" merge:action="insert" >
@@ -23,6 +23,31 @@
                     <service:content contentType="application/xml">
                         <service:xmlContent namespaceURI="http://collectionspace.org/services/media/local/mmi" schemaLocation="http://collectionspace.org/services/media/local/mmi http://collectionspace.org/services/media/local/media_mmi.xsd" />
                     </service:content>
+                </service:part>
+            </service:object>
+        </tenant:serviceBindings>
+
+        <tenant:serviceBindings merge:matcher="id" id="Persons">
+            <service:object xmlns:service="http://collectionspace.org/services/config/service" >
+                <service:part id="42" merge:matcher="skip" merge:action="insert" control_group="Managed" versionable="true" auditable="false" label="persons_mmi" updated="" order="3">
+                    <service:content contentType="application/xml">
+                        <service:xmlContent namespaceURI="http://collectionspace.org/services/person/local/mmi" schemaLocation="http://collectionspace.org/services/person/local/mmi http://collectionspace.org/services/person/local/persons_mmi.xsd" />
+                    </service:content>
+                    <service:properties>
+                        <!-- See CSPACE-3938 for potential additional authRef and termRef entries -->
+                        <types:item xmlns:types="http://collectionspace.org/services/config/types">
+                              <types:key>authRef</types:key>
+                              <types:value>affiliatedPersonOrgGroupList/*/affiliatedPersonOrg</types:value>
+                        </types:item>
+                        <types:item xmlns:types="http://collectionspace.org/services/config/types">
+                              <types:key>authRef</types:key>
+                              <types:value>orgContactNames|orgContactName</types:value>
+                        </types:item>
+                        <types:item xmlns:types="http://collectionspace.org/services/config/types">
+                              <types:key>termRef</types:key>
+                              <types:value>affiliatedPersonOrgGroupList/*/affiliatedPersonOrgType</types:value>
+                        </types:item>
+                    </service:properties>
                 </service:part>
             </service:object>
         </tenant:serviceBindings>
