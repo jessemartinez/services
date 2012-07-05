@@ -11,8 +11,8 @@ import org.collectionspace.services.common.vocabulary.AuthorityItemJAXBSchema;
 public interface WorkJAXBSchema extends AuthorityItemJAXBSchema {
 	final static String WORKS_COMMON = "works_common";
 	final static String WORK_SCOPE_NOTE = "scopeNote";
-	final static String WORK_INDEXING_NOTE = "indexingNote";
-	final static String WORK_HISTORY_NOTE = "historyNote";
+	//final static String WORK_INDEXING_NOTE = "indexingNote";
+	//final static String WORK_HISTORY_NOTE = "historyNote";
 	final static String WORK_GENRE = "genre";
 	final static String WORK_MEDIUM = "medium";
 
@@ -27,6 +27,10 @@ public interface WorkJAXBSchema extends AuthorityItemJAXBSchema {
 	final static String WORK_PUBLISHER_GROUP_LIST = "publisherGroupList";
 	final static String WORK_PUBLISHER_GROUP_PUBLISHER = "publisher";
 	final static String WORK_PUBLISHER_GROUP_PUBLISHER_TYPE = "publisherType";
+
+	final static String WORK_MIGRATED_ENTITY_GROUP_LIST = "migratedEntityGroupList";
+	final static String WORK_MIGRATED_ENTITY_GROUP_MIGRATED_ENTITY = "migratedEntity";
+	final static String WORK_MIGRATED_ENTITY_GROUP_MIGRATED_ENTITY_TYPE = "migratedEntityType";
 	
 	final static String WORK_TERM_DISPLAY_NAME = "termDisplayName";
 	final static String WORK_TERM_NAME = "termName";
