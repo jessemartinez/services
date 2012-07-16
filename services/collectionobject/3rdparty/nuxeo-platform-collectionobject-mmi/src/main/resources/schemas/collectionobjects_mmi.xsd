@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+
+<!--
+  CollectionObject schema (XSD)
+  
+  Entity  : CollectionObject
+  Part    : Domain - Museum of the Moving Image - MMI
+  Used for: Nuxeo EP core document type
+  
+  $LastChangedRevision: $
+  $LastChangedDate: $
+-->
+
+<xs:schema 
+  xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  xmlns:ns="http://collectionspace.org/services/collectionobject/local/mmi"
+  xmlns="http://collectionspace.org/services/collectionobject/local/mmi"
+  targetNamespace="http://collectionspace.org/services/collectionobject/local/mmi"
+  version="0.1">
+
+    <xs:element name="administrativeRemarks" type="xs:string"/>
+    <xs:element name="provenance" type="xs:string"/>
+    <xs:element name="initialCatalogingCompleted" type="xs:boolean"/>
+    <xs:element name="additionalResearchRequired" type="xs:boolean"/>
+    <xs:element name="historicalNoteSources" type="xs:string"/>
+    <!-- MMI specific Title field -->
+    <xs:element name="objectTitle" type="xs:string"/>
+
+    <xs:element name="copyrightStatements">
+        <xs:complexType>
+              <xs:sequence>
+                  <xs:element name="copyrightStatement" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+              </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+     
+    <!-- MMI specific Materials field -->
+    <xs:element name="mmiMaterials">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="mmiMaterial" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+     
+    <!-- MMI specific Inscriptions Contents field -->
+    <xs:element name="mmiInscriptionContents">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="mmiInscriptionContent" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+     
+    <!-- MMI specific Techniques field -->
+    <xs:element name="mmiTechniques">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="mmiTechnique" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+    <!-- List of Artifact Class and Work Types -->
+    <xs:element name="artifactClassWorkTypeList" type="artifactClassWorkTypeList"/>
+
+    <!-- List of Content Entities -->
+    <xs:element name="contentEntityList" type="contentEntityList"/>
+
+    <!-- List of Associated Productions -->
+    <xs:element name="assocProductionList" type="assocProductionList"/>
+
+    <!-- List of Associated Publications -->
+    <xs:element name="assocPublicationList" type="assocPublicationList"/>
+
+<!-- =================================================================
+     Artifact Class and Work Type Group repeating structure
+     ================================================================= -->
+
+    <xs:complexType name="artifactClassWorkTypeList">
+        <xs:sequence>
+            <xs:element name="artifactClassWorkTypeGroup" type="artifactClassWorkTypeGroup" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="artifactClassWorkTypeGroup">
+        <xs:sequence>
+            <xs:element name="artifactClass" type="xs:string"/>
+            <xs:element name="workType" type="xs:string"/>
+        </xs:sequence>
+    </xs:complexType>
+
+<!-- =================================================================
+     Content Entity Group repeating structure
+     ================================================================= -->
+
+    <xs:complexType name="contentEntityList">
+        <xs:sequence>
+            <xs:element name="contentEntityGroup" type="contentEntityGroup" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="contentEntityGroup">
+        <xs:sequence>
+            <xs:element name="contentEntity" type="xs:string"/>
+            <xs:element name="contentEntityType" type="xs:string"/>
+        </xs:sequence>
+    </xs:complexType>
+
+<!-- =================================================================
+     Associated Production Group repeating structure
+     ================================================================= -->
+
+    <xs:complexType name="assocProductionList">
+        <xs:sequence>
+            <xs:element name="assocProductionGroup" type="assocProductionGroup" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="assocProductionGroup">
+        <xs:sequence>
+            <xs:element name="assocProduction" type="xs:string"/>
+            <xs:element name="assocProductionType" type="xs:string"/>
+        </xs:sequence>
+    </xs:complexType>
+
+<!-- =================================================================
+     Associated Publication Group repeating structure
+     ================================================================= -->
+
+    <xs:complexType name="assocPublicationList">
+        <xs:sequence>
+            <xs:element name="assocPublicationGroup" type="assocPublicationGroup" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="assocPublicationGroup">
+        <xs:sequence>
+            <xs:element name="assocPublication" type="xs:string"/>
+            <xs:element name="assocPublicationType" type="xs:string"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <!-- DOCAM fields : ignore for now -->
+    <xs:element name="cataloguer" type="xs:string"/>
+    <xs:element name="dateOfCataloging" type="xs:date"/>
+    <xs:element name="comments" type="xs:string"/>
+</xs:schema>
