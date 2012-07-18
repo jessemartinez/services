@@ -35,7 +35,6 @@
         </xs:sequence>
     </xs:complexType>
     <xs:element name="lifeSpan" type="xs:string"/>
-    <xs:element name="scopeNote" type="xs:string"/>
     <xs:element name="orgContactNames">
         <xs:complexType>
             <xs:sequence>
