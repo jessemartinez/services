@@ -23,6 +23,8 @@
     <xs:element name="initialCatalogingCompleted" type="xs:boolean"/>
     <xs:element name="additionalResearchRequired" type="xs:boolean"/>
     <xs:element name="historicalNoteSources" type="xs:string"/>
+    <xs:element name="artifactClass" type="xs:string"/>
+    <xs:element name="workType" type="xs:string"/>
     <!-- MMI specific Title field -->
     <xs:element name="objectTitle" type="xs:string"/>
 
@@ -62,7 +64,7 @@
     </xs:element>
 
     <!-- List of Artifact Class and Work Types -->
-    <xs:element name="artifactClassWorkTypeList" type="artifactClassWorkTypeList"/>
+    <!--xs:element name="artifactClassWorkTypeList" type="artifactClassWorkTypeList"/>
 
     <!-- List of Content Entities -->
     <xs:element name="contentEntityList" type="contentEntityList"/>
@@ -77,7 +79,7 @@
      Artifact Class and Work Type Group repeating structure
      ================================================================= -->
 
-    <xs:complexType name="artifactClassWorkTypeList">
+    <!--xs:complexType name="artifactClassWorkTypeList">
         <xs:sequence>
             <xs:element name="artifactClassWorkTypeGroup" type="artifactClassWorkTypeGroup" minOccurs="0" maxOccurs="unbounded"/>
         </xs:sequence>
@@ -88,7 +90,7 @@
             <xs:element name="artifactClass" type="xs:string"/>
             <xs:element name="workType" type="xs:string"/>
         </xs:sequence>
-    </xs:complexType>
+    </xs:complexType-->
 
 <!-- =================================================================
      Content Entity Group repeating structure
