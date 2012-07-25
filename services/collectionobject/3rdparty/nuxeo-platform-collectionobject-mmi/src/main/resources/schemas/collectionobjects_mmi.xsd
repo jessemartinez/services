@@ -64,7 +64,7 @@
     </xs:element>
 
     <!-- List of Artifact Class and Work Types -->
-    <!--xs:element name="artifactClassWorkTypeList" type="artifactClassWorkTypeList"/>
+    <!--xs:element name="artifactClassWorkTypeList" type="artifactClassWorkTypeList"/-->
 
     <!-- List of Content Entities -->
     <xs:element name="contentEntityList" type="contentEntityList"/>
