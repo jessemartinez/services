@@ -25,6 +25,7 @@
     <xs:element name="historicalNoteSources" type="xs:string"/>
     <xs:element name="artifactClass" type="xs:string"/>
     <xs:element name="workType" type="xs:string"/>
+    <xs:element name="caption" type="xs:string"/>
     <!-- MMI specific Title field -->
     <xs:element name="objectTitle" type="xs:string"/>
 
@@ -63,34 +64,14 @@
         </xs:complexType>
     </xs:element>
 
-    <!-- List of Artifact Class and Work Types -->
-    <!--xs:element name="artifactClassWorkTypeList" type="artifactClassWorkTypeList"/-->
-
     <!-- List of Content Entities -->
     <xs:element name="contentEntityList" type="contentEntityList"/>
 
-    <!-- List of Associated Productions -->
-    <xs:element name="assocProductionList" type="assocProductionList"/>
+    <!-- List of Content Works -->
+    <xs:element name="contentWorkList" type="contentWorkList"/>
 
-    <!-- List of Associated Publications -->
-    <xs:element name="assocPublicationList" type="assocPublicationList"/>
-
-<!-- =================================================================
-     Artifact Class and Work Type Group repeating structure
-     ================================================================= -->
-
-    <!--xs:complexType name="artifactClassWorkTypeList">
-        <xs:sequence>
-            <xs:element name="artifactClassWorkTypeGroup" type="artifactClassWorkTypeGroup" minOccurs="0" maxOccurs="unbounded"/>
-        </xs:sequence>
-    </xs:complexType>
-
-    <xs:complexType name="artifactClassWorkTypeGroup">
-        <xs:sequence>
-            <xs:element name="artifactClass" type="xs:string"/>
-            <xs:element name="workType" type="xs:string"/>
-        </xs:sequence>
-    </xs:complexType-->
+    <!-- List of Object Production Entities -->
+    <xs:element name="objProdEntityList" type="objProdEntityList"/>
 
 <!-- =================================================================
      Content Entity Group repeating structure
@@ -106,40 +87,43 @@
         <xs:sequence>
             <xs:element name="contentEntity" type="xs:string"/>
             <xs:element name="contentEntityType" type="xs:string"/>
+            <xs:element name="contentEntityNote" type="xs:string"/>
         </xs:sequence>
     </xs:complexType>
 
 <!-- =================================================================
-     Associated Production Group repeating structure
+     Content Work Group repeating structure
      ================================================================= -->
 
-    <xs:complexType name="assocProductionList">
+    <xs:complexType name="contentWorkList">
         <xs:sequence>
-            <xs:element name="assocProductionGroup" type="assocProductionGroup" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="contentWorkGroup" type="contentWorkGroup" minOccurs="0" maxOccurs="unbounded"/>
         </xs:sequence>
     </xs:complexType>
 
-    <xs:complexType name="assocProductionGroup">
+    <xs:complexType name="contentWorkGroup">
         <xs:sequence>
-            <xs:element name="assocProduction" type="xs:string"/>
-            <xs:element name="assocProductionType" type="xs:string"/>
+            <xs:element name="contentWork" type="xs:string"/>
+            <xs:element name="contentWorkType" type="xs:string"/>
+            <xs:element name="contentWorkNote" type="xs:string"/>
         </xs:sequence>
     </xs:complexType>
 
 <!-- =================================================================
-     Associated Publication Group repeating structure
+     Object Production Entity Group repeating structure
      ================================================================= -->
 
-    <xs:complexType name="assocPublicationList">
+    <xs:complexType name="objProdEntityList">
         <xs:sequence>
-            <xs:element name="assocPublicationGroup" type="assocPublicationGroup" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="objProdEntityGroup" type="objProdEntityGroup" minOccurs="0" maxOccurs="unbounded"/>
         </xs:sequence>
     </xs:complexType>
 
-    <xs:complexType name="assocPublicationGroup">
+    <xs:complexType name="objProdEntityGroup">
         <xs:sequence>
-            <xs:element name="assocPublication" type="xs:string"/>
-            <xs:element name="assocPublicationType" type="xs:string"/>
+            <xs:element name="objProdEntity" type="xs:string"/>
+            <xs:element name="objProdEntityRole" type="xs:string"/>
+            <xs:element name="objProdEntityNote" type="xs:string"/>
         </xs:sequence>
     </xs:complexType>
 

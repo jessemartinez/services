@@ -16,27 +16,27 @@
                         <!-- See CSPACE-3938 for potential additional authRef and termRef entries -->
                         <types:item xmlns:types="http://collectionspace.org/services/config/types">
                               <types:key>authRef</types:key>
-                              <types:value>assocProductionList/*/assocProduction</types:value>
-                        </types:item>
-                        <types:item xmlns:types="http://collectionspace.org/services/config/types">
-                              <types:key>authRef</types:key>
-                              <types:value>assocPublicationList/*/assocPublication</types:value>
+                              <types:value>contentWorkList/*/contentWork</types:value>
                         </types:item>
                         <types:item xmlns:types="http://collectionspace.org/services/config/types">
                               <types:key>authRef</types:key>
                               <types:value>contentEntityList/*/contentEntity</types:value>
                         </types:item>
                         <types:item xmlns:types="http://collectionspace.org/services/config/types">
-                              <types:key>termRef</types:key>
-                              <types:value>assocProductionList/*/assocProductionType</types:value>
+                              <types:key>authRef</types:key>
+                              <types:value>objProdEntityList/*/objProdEntity</types:value>
                         </types:item>
                         <types:item xmlns:types="http://collectionspace.org/services/config/types">
                               <types:key>termRef</types:key>
-                              <types:value>assocPublicationList/*/assocPublicationType</types:value>
+                              <types:value>contentWorkList/*/contentWorkType</types:value>
                         </types:item>
                         <types:item xmlns:types="http://collectionspace.org/services/config/types">
                               <types:key>termRef</types:key>
                               <types:value>contentEntityList/*/contentEntityType</types:value>
+                        </types:item>
+                        <types:item xmlns:types="http://collectionspace.org/services/config/types">
+                              <types:key>termRef</types:key>
+                              <types:value>objProdEntityList/*/objProdEntityRole</types:value>
                         </types:item>
                     </service:properties>
                 </service:part>
