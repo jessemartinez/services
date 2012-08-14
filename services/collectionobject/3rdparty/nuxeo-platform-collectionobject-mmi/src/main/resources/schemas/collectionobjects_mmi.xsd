@@ -22,6 +22,7 @@
     <xs:element name="provenance" type="xs:string"/>
     <xs:element name="initialCatalogingCompleted" type="xs:boolean"/>
     <xs:element name="additionalResearchRequired" type="xs:boolean"/>
+    <xs:element name="approvedByCurator" type="xs:boolean"/>
     <xs:element name="historicalNoteSources" type="xs:string"/>
     <xs:element name="artifactClass" type="xs:string"/>
     <xs:element name="workType" type="xs:string"/>
