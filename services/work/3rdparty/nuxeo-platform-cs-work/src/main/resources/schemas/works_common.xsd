@@ -24,8 +24,6 @@
     <xs:element name="refName" type="xs:string"/>
 
     <xs:element name="scopeNote" type="xs:string"/>
-    <!--<xs:element name="indexingNote" type="xs:string"/>-->
-    <!--<xs:element name="historyNote" type="xs:string"/>-->
     <xs:element name="genre" type="xs:string"/>
     <xs:element name="medium" type="xs:string"/>
     
