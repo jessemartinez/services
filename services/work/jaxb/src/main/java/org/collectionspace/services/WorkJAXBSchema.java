@@ -28,10 +28,7 @@ public interface WorkJAXBSchema extends AuthorityItemJAXBSchema {
 	final static String WORK_PUBLISHER_GROUP_PUBLISHER = "publisher";
 	final static String WORK_PUBLISHER_GROUP_PUBLISHER_TYPE = "publisherType";
 
-	final static String WORK_MIGRATED_ENTITY_GROUP_LIST = "migratedEntityGroupList";
-	final static String WORK_MIGRATED_ENTITY_GROUP_MIGRATED_ENTITY = "migratedEntity";
-	final static String WORK_MIGRATED_ENTITY_GROUP_MIGRATED_ENTITY_TYPE = "migratedEntityType";
-	
+	final static String WORK_TERM_GROUP_LIST = "workTermGroupList";
 	final static String WORK_TERM_DISPLAY_NAME = "termDisplayName";
 	final static String WORK_TERM_NAME = "termName";
 	final static String WORK_TERM_TYPE = "termType";
@@ -46,4 +43,5 @@ public interface WorkJAXBSchema extends AuthorityItemJAXBSchema {
 	
 	final static String WORK_SHORT_IDENTIFIER = "shortIdentifier";
 	final static String WORK_REFNAME = "refName";
+	final static String WORK_INAUTHORITY = "inAuthority";
 }
