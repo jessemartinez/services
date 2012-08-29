@@ -65,7 +65,7 @@ public class WorkAuthorityResource
     }
 
     @Override
-    public Class<WorkauthoritiesCommon> getCommonPartClass() {
-    	return WorkAuthorityClient.TERM_INFO_GROUP_XPATH_BASE;
+    public String getItemTermInfoGroupXPathBase() {
+        return WorkAuthorityClient.TERM_INFO_GROUP_XPATH_BASE;
     }
 }

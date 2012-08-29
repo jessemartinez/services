@@ -41,11 +41,12 @@ import org.collectionspace.services.work.WorkTermGroupList;
 import org.collectionspace.services.work.WorkTermGroup;
 import org.collectionspace.services.work.WorkauthoritiesCommon;
 import org.collectionspace.services.work.WorksCommon;
-// possibly needed
 import org.collectionspace.services.work.CreatorGroupList;
 import org.collectionspace.services.work.CreatorGroup;
 import org.collectionspace.services.work.PublisherGroupList;
 import org.collectionspace.services.work.PublisherGroup;
+import org.collectionspace.services.work.MigratedEntityGroupList;
+import org.collectionspace.services.work.MigratedEntityGroup;
  
 import org.jboss.resteasy.client.ClientResponse;
  
@@ -59,9 +60,6 @@ import org.testng.annotations.Test;
 /**
  * WorkAuthorityServiceTest, carries out tests against a
  * deployed and running WorkAuthority Service.
- *
- * $LastChangedRevision: 753 $
- * $LastChangedDate: 2009-09-23 11:03:36 -0700 (Wed, 23 Sep 2009) $
  */
 public class WorkAuthorityServiceTest extends AbstractAuthorityServiceTest<WorkauthoritiesCommon, WorksCommon> {
  
@@ -139,24 +137,43 @@ public class WorkAuthorityServiceTest extends AbstractAuthorityServiceTest<Worka
         workMap.put(WorkJAXBSchema.WORK_SCOPE_NOTE, TEST_WORK_SCOPE_NOTE);
         workMap.put(WorkJAXBSchema.WORK_GENRE, TEST_WORK_GENRE);
         workMap.put(WorkJAXBSchema.WORK_MEDIUM, TEST_WORK_MEDIUM);
+
+        List<CreatorGroup> creatorGroupTerms = new ArrayList<CreatorGroup>();
+        CreatorGroup creatorGroup = new CreatorGroup();
+        creatorGroup.setCreator(TEST_WORK_CREATOR_GROUP_CREATOR);
+        creatorGroup.setCreatorType(TEST_WORK_CREATOR_GROUP_CREATOR_TYPE);
+        creatorGroupTerms.add(creatorGroup);
+
+        List<PublisherGroup> publisherGroupTerms = new ArrayList<PublisherGroup>();
+        PublisherGroup publisherGroup = new PublisherGroup();
+        publisherGroup.setPublisher(TEST_WORK_PUBLISHER_GROUP_PUBLISHER);
+        publisherGroup.setPublisherType(TEST_WORK_PUBLISHER_GROUP_PUBLISHER_TYPE);
+        publisherGroupTerms.add(publisherGroup);
+
+        List<MigratedEntityGroup> migratedEntityGroupTerms = new ArrayList<MigratedEntityGroup>();
+        MigratedEntityGroup migratedEntityGroup = new MigratedEntityGroup();
+        migratedEntityGroup.setMigratedEntity(TEST_WORK_MIGRATED_ENTITY_GROUP_MIGRATED_ENTITY);
+        migratedEntityGroup.setMigratedEntityType(TEST_WORK_MIGRATED_ENTITY_GROUP_MIGRATED_ENTITY_TYPE);
+        migratedEntityGroupTerms.add(migratedEntityGroup);
         
-        List<WorkTermGroup> terms = new ArrayList<WorkTermGroup>();
-        WorkTermGroup term = new WorkTermGroup();
-        term.setTermDisplayName(TEST_WORK_TERM_DISPLAY_NAME);
-        term.setTermName(TEST_WORK_TERM_NAME);
-        term.setTermType(TEST_WORK_TERM_TYPE);
-        term.setTermLanguage(TEST_WORK_TERM_LANGUAGE);
-        term.setTermPrefForLang(TEST_WORK_TERM_PREFFORLANG);
-        term.setTermQualifier(TEST_WORK_TERM_QUALIFIER);
-        term.setTermSource(TEST_WORK_TERM_SOURCE);
-        term.setTermSourceDetail(TEST_WORK_TERM_SOURCE_DETAIL);
-        term.setTermStatus(TEST_WORK_TERM_STATUS);
-        term.setTermSourceID(TEST_WORK_TERM_SOURCE_ID);
-        term.setTermSourceNote(TEST_WORK_TERM_SOURCE_NOTE);
-        terms.add(term);
+        List<WorkTermGroup> workTerms = new ArrayList<WorkTermGroup>();
+        WorkTermGroup wterm = new WorkTermGroup();
+        wterm.setTermDisplayName(TEST_WORK_TERM_DISPLAY_NAME);
+        wterm.setTermName(TEST_WORK_TERM_NAME);
+        wterm.setTermType(TEST_WORK_TERM_TYPE);
+        wterm.setTermLanguage(TEST_WORK_TERM_LANGUAGE);
+        wterm.setTermPrefForLang(TEST_WORK_TERM_PREFFORLANG);
+        wterm.setTermQualifier(TEST_WORK_TERM_QUALIFIER);
+        wterm.setTermSource(TEST_WORK_TERM_SOURCE);
+        wterm.setTermSourceDetail(TEST_WORK_TERM_SOURCE_DETAIL);
+        wterm.setTermStatus(TEST_WORK_TERM_STATUS);
+        wterm.setTermSourceID(TEST_WORK_TERM_SOURCE_ID);
+        wterm.setTermSourceNote(TEST_WORK_TERM_SOURCE_NOTE);
+        workTerms.add(wterm);
         
+        // add createrGroupList and publisherGroupList
         String newID = WorkAuthorityClientUtils.createItemInAuthority(vcsid, 
-                        authRefName, workMap, terms, client);
+                        authRefName, workMap, creatorGroupTerms, publisherGroupTerms, migratedEntityGroupTerms, workTerms, client);
 
         // Store the ID returned from the first item resource created
         // for additional tests below.
@@ -200,10 +217,6 @@ public class WorkAuthorityServiceTest extends AbstractAuthorityServiceTest<Worka
                 res.releaseConnection();
             }
         }
-
-        // Try to Update with computed false and no displayName
-        //work.setDisplayNameComputed(false);
-        //work.setDisplayName(null);
         
         //
         // Make an invalid UPDATE request, without a display name
@@ -448,13 +461,8 @@ public class WorkAuthorityServiceTest extends AbstractAuthorityServiceTest<Worka
     protected WorkauthoritiesCommon updateInstance(WorkauthoritiesCommon workauthoritiesCommon) {
         WorkauthoritiesCommon result = new WorkauthoritiesCommon();
 
-<<<<<<< HEAD
-		result.setTermDisplayName("updated-" + workauthoritiesCommon.getTermDisplayName());
-		result.setVocabType("updated-" + workauthoritiesCommon.getVocabType());
-=======
         result.setDisplayName("updated-" + workauthoritiesCommon.getDisplayName());
         result.setVocabType("updated-" + workauthoritiesCommon.getVocabType());
->>>>>>> MMI-11: update to core work schema
 
         return result;
     }
@@ -528,11 +536,6 @@ public class WorkAuthorityServiceTest extends AbstractAuthorityServiceTest<Worka
     @Override
     protected void verifyReadItemInstance(WorksCommon item)
                 throws Exception {
-        // Copied from Taxon -- Keep?
-        //Assert.assertNotNull(item.getTermDisplayName(), "Field value is unexpectedly null.");
-        //Assert.assertEquals(item.getTermDisplayName(), TEST_WORK_TERM_DISPLAY_NAME,
-        //  "Field value " + item.getTermDisplayName()
-        //  + "does not match expected value " + TEST_WORK_TERM_DISPLAY_NAME);
     }
  
     @Override
@@ -545,7 +548,10 @@ public class WorkAuthorityServiceTest extends AbstractAuthorityServiceTest<Worka
         final String EMPTY_REFNAME = "";
 
         PoxPayloadOut result =
-                WorkAuthorityClientUtils.createWorkInstance(EMPTY_REFNAME, nonexMap,
+                WorkAuthorityClientUtils.createWorkInstance(EMPTY_REFNAME, nonexMap, 
+                    WorkAuthorityClientUtils.getCreatorGroupInstance(TEST_WORK_CREATOR_GROUP_CREATOR), 
+                    WorkAuthorityClientUtils.getPublisherGroupInstance(TEST_WORK_PUBLISHER_GROUP_PUBLISHER), 
+                    WorkAuthorityClientUtils.getMigratedEntityGroupInstance(TEST_WORK_MIGRATED_ENTITY_GROUP_MIGRATED_ENTITY), 
                     WorkAuthorityClientUtils.getTermGroupInstance(TEST_WORK_TERM_DISPLAY_NAME), commonPartName);
         return result;
     }
