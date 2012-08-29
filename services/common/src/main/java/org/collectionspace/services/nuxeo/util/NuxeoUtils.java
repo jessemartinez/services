@@ -21,6 +21,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.File;
+import java.lang.reflect.Field;
 
 import java.util.GregorianCalendar;
 import java.util.List;
@@ -30,6 +31,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
+import org.collectionspace.services.client.CollectionSpaceClient;
 import org.collectionspace.services.client.IQueryManager;
 import org.collectionspace.services.client.PoxPayloadIn;
 import org.collectionspace.services.client.PoxPayloadOut;
@@ -40,8 +42,6 @@ import org.collectionspace.services.common.datetime.DateTimeFormatUtils;
 import org.collectionspace.services.common.document.DocumentException;
 import org.collectionspace.services.common.document.DocumentFilter;
 import org.collectionspace.services.common.query.QueryContext;
-import org.collectionspace.services.config.service.ListResultField;
-import org.collectionspace.services.nuxeo.client.java.DocumentModelHandler;
 
 import org.dom4j.Document;
 import org.dom4j.io.SAXReader;
@@ -50,6 +50,7 @@ import org.nuxeo.ecm.core.api.DocumentModel;
 import org.nuxeo.ecm.core.api.DocumentModelList;
 import org.nuxeo.ecm.core.api.ClientException;
 import org.nuxeo.ecm.core.api.repository.RepositoryInstance;
+import org.nuxeo.ecm.core.api.Blob;
 import org.nuxeo.ecm.core.api.CoreSession;
 import org.nuxeo.ecm.core.api.DocumentRef;
 import org.nuxeo.ecm.core.api.IdRef;
@@ -65,6 +66,8 @@ import org.nuxeo.ecm.core.io.impl.plugins.XMLDocumentWriter;
 
 import org.nuxeo.ecm.core.schema.SchemaManager;
 import org.nuxeo.ecm.core.search.api.client.querymodel.descriptor.QueryModelDescriptor;
+import org.nuxeo.ecm.core.storage.sql.Binary;
+import org.nuxeo.ecm.core.storage.sql.coremodel.SQLBlob;
 import org.nuxeo.runtime.api.Framework;
 
 
@@ -92,7 +95,94 @@ public class NuxeoUtils {
     //private static final String ORDER_BY_CLAUSE_REGEX = "\\w+(_\\w+)?:\\w+( ASC| DESC)?(, \\w+(_\\w+)?:\\w+( ASC| DESC)?)*";    
 		// Allow paths so can sort on complex fields. CSPACE-4601
     private static final String ORDER_BY_CLAUSE_REGEX = "\\w+(_\\w+)?:\\w+(/(\\*|\\w+))*( ASC| DESC)?(, \\w+(_\\w+)?:\\w+(/(\\*|\\w+))*( ASC| DESC)?)*";
+	
+    /* 
+     * Keep this method private.  This method uses reflection to gain access to a protected field in Nuxeo's "Binary" class.  Once we learn how
+     * to locate the "file" field of a Binary instance without breaking our "contract" with this class, we should minimize
+     * our use of this method.
+     */
+    private static File getFileOfBlob(Blob blob) {
+    	File result = null;
+    	
+    	if (blob instanceof SQLBlob) {
+    		SQLBlob sqlBlob = (SQLBlob)blob;
+    		Binary binary = sqlBlob.getBinary();
+    		try {
+    			Field fileField = binary.getClass().getDeclaredField("file");
+    			boolean accessibleState = fileField.isAccessible();
+    			if (accessibleState == false) {
+    				fileField.setAccessible(true);
+    			}
+    			result = (File)fileField.get(binary);
+    			fileField.setAccessible(accessibleState); // set it back to its original access state
+    		} catch (Exception e) {
+    			logger.error("Was not able to find the 'file' field", e);
+    		}    		
+    	}
+    	
+    	return result;
+    }
+    
+    static public boolean deleteFileOfBlob(Blob blob) {
+    	boolean result = false;
+    	
+    	File fileToDelete = getFileOfBlob(blob);
+    	result = fileToDelete.delete();
+		if (result == false) {
+			logger.warn("Could not delete the blob file at: " + fileToDelete.getAbsolutePath());
+		}
+    	
+    	return result;
+    }
+    
+    /*
+     * This method will fail to return a facet list if non exist or if Nuxeo changes the
+     * DocumentModelImpl class "facets" field to be of a different type or if they remove it altogether.
+     */
+    public static Set<String> getFacets(DocumentModel docModel) {
+    	Set<String> result = null;
+    	
+    	try {
+			Field f = docModel.getClass().getDeclaredField("facets");
+			f.setAccessible(true);
+			result = (Set<String>) f.get(docModel);
+			f.setAccessible(false);
+    	} catch (Exception e) {
+    		logger.error("Could not remove facet from DocumentModel instance: " + docModel.getId(), e);
+    	}
+    	
+    	return result;
+    }
+    
+    /*
+     * Remove a Nuxeo facet from a document model instance
+     */
+    public static boolean removeFacet(DocumentModel docModel, String facet) {
+    	boolean result = false;
+    	
+    	Set<String> facets = getFacets(docModel);
+    	if (facets != null && facets.contains(facet)) {
+    		facets.remove(facet);
+    		result = true;
+    	}
 		
+		return result;
+    }
+    
+    /*
+     * Adds a Nuxeo facet to a document model instance
+     */
+    public static boolean addFacet(DocumentModel docModel, String facet) {
+    	boolean result = false;
+    	
+    	Set<String> facets = getFacets(docModel);
+    	if (facets != null && !facets.contains(facet)) {
+    		facets.add(facet);
+    		result = true;
+    	}
+		
+		return result;
+    }    
 
     public static void exportDocModel(DocumentModel src) {
     	DocumentReader reader = null;
@@ -284,8 +374,8 @@ public class NuxeoUtils {
         //
         // Restrict search to the current tenant ID.  Is the domain path filter (above) still needed?
         //
-        query.append(/*IQueryManager.SEARCH_QUALIFIER_AND +*/ " WHERE " + DocumentModelHandler.COLLECTIONSPACE_CORE_SCHEMA + ":"
-                + DocumentModelHandler.COLLECTIONSPACE_CORE_TENANTID
+        query.append(/*IQueryManager.SEARCH_QUALIFIER_AND +*/ " WHERE " + CollectionSpaceClient.COLLECTIONSPACE_CORE_SCHEMA + ":"
+                + CollectionSpaceClient.COLLECTIONSPACE_CORE_TENANTID
                 + " = " + queryContext.getTenantId());
         //
         // Finally, append the incoming where clause
@@ -311,11 +401,14 @@ public class NuxeoUtils {
      * @throws DocumentException  if the supplied value of the orderBy clause is not valid.
      *
      */
-    static private final void appendNXQLOrderBy(StringBuilder query, String orderByClause)
+    static private final void appendNXQLOrderBy(StringBuilder query, String orderByClause, String orderByPrefix)
             throws Exception {
         if (orderByClause != null && ! orderByClause.trim().isEmpty()) {
             if (isValidOrderByClause(orderByClause)) {
                 query.append(" ORDER BY ");
+                if (orderByPrefix != null) {
+                	query.append(orderByPrefix);
+                }
                 query.append(orderByClause);
             } else {
                 throw new DocumentException("Invalid format in sort request '" + orderByClause
@@ -336,7 +429,13 @@ public class NuxeoUtils {
     static private final void appendNXQLOrderBy(StringBuilder query, QueryContext queryContext)
             throws Exception {
         String orderByClause = queryContext.getOrderByClause();
-        appendNXQLOrderBy(query, orderByClause);
+        appendNXQLOrderBy(query, orderByClause, null);
+    }
+        
+    static public final void appendCMISOrderBy(StringBuilder query, QueryContext queryContext)
+            throws Exception {
+        String orderByClause = queryContext.getOrderByClause();
+        appendNXQLOrderBy(query, orderByClause, IQueryManager.CMIS_TARGET_PREFIX + ".");
     }
 
     /**
@@ -382,6 +481,21 @@ public class NuxeoUtils {
         return query.toString();
     }
     
+    static public final String buildCMISQuery(ServiceContext ctx, QueryContext queryContext) throws Exception {
+        StringBuilder query = new StringBuilder("SELECT * FROM ");
+
+        /*
+         * This is a place holder for CMIS query creation -see buildNXQLQuery as a reference
+         */
+
+        return query.toString();
+    }
+    
+    static public final String buildWorkflowNotDeletedWhereClause() {
+    	return "ecm:currentLifeCycleState <> 'deleted'";
+    }
+    
+    
     /**
      * Builds an NXQL SELECT query across multiple document types.
      *
@@ -406,10 +520,10 @@ public class NuxeoUtils {
         }
         appendNXQLWhere(query, queryContext);
         if (Tools.notBlank(queryContext.getOrderByClause())) {
-            appendNXQLOrderBy(query, queryContext.getOrderByClause());
+            appendNXQLOrderBy(query, queryContext.getOrderByClause(), null);
         } else {
             // Across a set of mixed DocTypes, updatedAt is the most sensible default ordering
-            appendNXQLOrderBy(query, DocumentFilter.ORDER_BY_LAST_UPDATED);
+            appendNXQLOrderBy(query, DocumentFilter.ORDER_BY_LAST_UPDATED, null);
         }
         // FIXME add 'order by' clause here, if appropriate
         return query.toString();
