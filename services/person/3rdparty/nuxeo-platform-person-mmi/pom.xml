@@ -17,6 +17,10 @@
     </description>
 
 	<properties>
+		<ServiceName>person</ServiceName>
+        	<NuxeoDocTypeName>Person</NuxeoDocTypeName>
+        	<CommonSchemaName>persons_common</CommonSchemaName>
+        	<Lifecycle>cs_default</Lifecycle>
 		<CustomSchemaName>persons_mmi</CustomSchemaName>
 		<TenantId>42</TenantId>
 		<TenantLabel>mmi</TenantLabel>
