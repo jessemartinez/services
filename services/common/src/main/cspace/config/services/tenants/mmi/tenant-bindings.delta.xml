@@ -15,6 +15,16 @@
                             <service:schema>collectionobjects_mmi</service:schema>
                             <service:xpath>caption</service:xpath>
                         </service:ListResultField>
+                        <service:ListResultField>
+                            <service:element>artifactClass</service:element>
+                            <service:schema>collectionobjects_mmi</service:schema>
+                            <service:xpath>artifactClass</service:xpath>
+                        </service:ListResultField>
+                        <service:ListResultField>
+                            <service:element>workType</service:element>
+                            <service:schema>collectionobjects_mmi</service:schema>
+                            <service:xpath>workType</service:xpath>
+                        </service:ListResultField>
                     </service:ListResultsFields>
                 </service:params>
             </service:DocHandlerParams>
