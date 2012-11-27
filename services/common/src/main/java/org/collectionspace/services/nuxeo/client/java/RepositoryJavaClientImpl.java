@@ -889,25 +889,23 @@ public class RepositoryJavaClientImpl implements RepositoryClient<PoxPayloadIn, 
             	int totalSize = (int)queryResult.size();
             	((DocumentModelListImpl)result).setTotalSize(totalSize);
 				// Skip the rows before our offset
-        		if(offset>0) {
-        			queryResult.skipTo(offset);
-        		}
+				if (offset > 0) {
+					queryResult.skipTo(offset);
+				}
         		int nRows = 0;
         		for (Map<String, Serializable> row : queryResult) {
-        			logger.debug(""
-        					//					+ " dc:title is: " + (String)row.get("dc:title")
-        					+ " Hierarchy Table ID is:" + row.get(IQueryManager.CMIS_TARGET_NUXEO_ID)
-        					+ " nuxeo:pathSegment is: " + row.get(IQueryManager.CMIS_TARGET_NAME)
-        					//					+ " nuxeo:lifecycleState is: " + row.get("nuxeo:lifecycleState")
-        					);
+        			if (logger.isTraceEnabled()) {
+	        			logger.trace(" Hierarchy Table ID is:" + row.get(IQueryManager.CMIS_TARGET_NUXEO_ID)
+	        					+ " nuxeo:pathSegment is: " + row.get(IQueryManager.CMIS_TARGET_NAME));
+        			}
         			String nuxeoId = (String) row.get(IQueryManager.CMIS_TARGET_NUXEO_ID);
         			DocumentModel docModel = NuxeoUtils.getDocumentModel(repoSession, nuxeoId);
         			result.add(docModel);
         			nRows++;
-        			if(nRows >= pageSize) {
-        				logger.debug("Got page full of items - quitting");
-        				break;
-        			}
+					if (nRows >= pageSize && pageSize != 0 ) { // A page size of zero means that they want all of them
+						logger.debug("Got page full of items - quitting");
+						break;
+					}
         		}
         	} finally {
         		queryResult.close();
@@ -1260,7 +1258,14 @@ public class RepositoryJavaClientImpl implements RepositoryClient<PoxPayloadIn, 
         String workspaceId = null;
         try {
             repoSession = getRepositorySession(null);
-            DocumentModel parentDoc = getWorkspacesRoot(repoSession, domainName);            
+            DocumentModel parentDoc = getWorkspacesRoot(repoSession, domainName);
+            
+            if (logger.isTraceEnabled()) {
+	            for (String facet : parentDoc.getFacets()) {
+	            	logger.debug("Facet: " + facet);
+	            }
+            }
+            
             DocumentModel doc = repoSession.createDocumentModel(parentDoc.getPathAsString(),
                     workspaceName, NuxeoUtils.WORKSPACE_DOCUMENT_TYPE);
             doc.setPropertyValue("dc:title", workspaceName);
