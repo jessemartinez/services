@@ -2634,8 +2634,6 @@
 
         <!-- begin workauthority service meta-data -->
         <tenant:serviceBindings id="Workauthorities" name="Workauthorities" type="utility" version="0.1">
-            <service:uriPath xmlns:service="http://collectionspace.org/services/common/service">/workauthorities/*/workflow/</service:uriPath>
-            <service:uriPath xmlns:service="http://collectionspace.org/services/common/service">/workauthorities/*/items/*/workflow/</service:uriPath>
             <!-- other URI paths using which this service could be accessed -->
             <!-- 
             <service:uriPath xmlns:service='http://collectionspace.org/services/config/service'>
@@ -2748,6 +2746,7 @@
                 </service:part>
                 <service:part id="1" control_group="Managed" versionable="true" auditable="false" label="works_common" updated="" order="1">
                     <service:properties xmlns:service="http://collectionspace.org/services/config/service">
+                        <!-- Fields containing authority term references -->
                         <types:item xmlns:types="http://collectionspace.org/services/config/types">
                             <types:key>authRef</types:key>
                             <types:value>creatorGroupList/*/creator</types:value>
@@ -2760,6 +2759,7 @@
                             <types:key>authRef</types:key>
                             <types:value>migratedEntityGroupList/*/migratedEntity</types:value>
                         </types:item>
+                        <!-- Fields containing term list / controlled vocabulary references -->
                         <types:item xmlns:types="http://collectionspace.org/services/config/types">
                             <types:key>termRef</types:key>
                             <types:value>medium</types:value>
@@ -3350,4 +3350,3 @@
     <!-- end prototype collectionspace.org tenant meta-data -->
   
 </tenant:TenantBindingConfig>
-

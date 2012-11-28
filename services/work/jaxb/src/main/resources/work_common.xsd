@@ -10,48 +10,6 @@
     >
 
     <!-- avoid XmlRootElement nightmare, see http://weblogs.java.net/blog/kohsuke/archive/2006/03/why_does_jaxb_p.html-->
-  
-	<!-- Work -->
-	<xs:element name="works_common">
-		<xs:complexType>
-			<xs:sequence>
-				<!--  Common identifier -->
-				<xs:element name="csid" type="xs:string" />
-					
-				<!--  Common Authority Information Group -->
-				<!--  inAuthority is the csid of the owning WorkAuthority -->
-				<xs:element name="inAuthority" type="xs:string"/>
-				<xs:element name="shortIdentifier" type="xs:string"/>
-				<xs:element name="refName" type="xs:string"/>
-				<xs:element name="termStatus" type="xs:string"/>
-				<xs:element name="displayName" type="xs:string"/>
-				<xs:element name="displayNameComputed" type="xs:boolean"/>
-			    <xs:element name="shortDisplayName" type="xs:string"/>
-			    <xs:element name="shortDisplayNameComputed" type="xs:boolean"/>
-			    <xs:element name="source" type="xs:string"/>
-			    <xs:element name="sourcePage" type="xs:string"/>
-			    <xs:element name="description" type="xs:string"/>
-
-				<xs:element name="scopeNote" type="xs:string"/>
-				<xs:element name="indexingNote" type="xs:string"/>
-				<xs:element name="historyNote" type="xs:string"/>
-				<xs:element name="genre" type="xs:string"/>
-				<xs:element name="medium" type="xs:string"/>
-				
-				<!-- List of workTerms -->
-				<xs:element name="workTermGroupList" type="workTermGroupList"/>
-	
-				<!--  List of Creators -->
-				<xs:element name="creatorGroupList" type="creatorGroupList"/>
-				
-				<!--  List of additional Work Term sources -->
-				<xs:element name="publisherGroupList" type="publisherGroupList"/>
-				
-				<!-- Structured Date group -->
-				<xs:element name="workDateGroupList" type="workDateGroupList"/>
-			</xs:sequence>
-		</xs:complexType>
-	</xs:element>
 
     <!-- Work -->
     <xs:element name="works_common">
@@ -67,8 +25,6 @@
                 <xs:element name="refName" type="xs:string"/>
 
                 <xs:element name="scopeNote" type="xs:string"/>
-                <!--<xs:element name="indexingNote" type="xs:string"/>-->
-                <!--<xs:element name="historyNote" type="xs:string"/>-->
                 <xs:element name="genre" type="xs:string"/>
                 <xs:element name="medium" type="xs:string"/>
 

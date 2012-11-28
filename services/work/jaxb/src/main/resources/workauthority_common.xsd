@@ -6,9 +6,6 @@
     Entity  : WorkAuthority
     Part    : Common
     Used for: JAXB binding between XML and Java objects
-    
-    $LastChangedRevision: 1055 $
-    $LastChangedDate: 2009-12-09 12:25:15 -0800 (Wed, 09 Dec 2009) $
 -->
 
 <xs:schema 
@@ -36,7 +33,7 @@
                 
                 <!--  WorkAuthority Information Group -->
                 <xs:element name="displayName" type="xs:string"/>
-				<xs:element name="shortIdentifier" type="xs:string"/>
+                <xs:element name="shortIdentifier" type="xs:string"/>
                 <xs:element name="refName" type="xs:string"/>
                 <xs:element name="vocabType" type="xs:string"/>
                 <xs:element name="source" type="xs:string"/>
@@ -46,4 +43,3 @@
     </xs:element>
     
 </xs:schema>
-

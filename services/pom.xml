@@ -58,6 +58,7 @@
         <module>intake</module>
         <module>loanin</module>
         <module>loanout</module>
+        <module>work</module>
         <module>objectexit</module>
         <module>batch</module>
         <module>imports</module>
@@ -71,7 +72,6 @@
         <module>contact</module>
         <module>workflow</module>
         <module>media</module>
-        <module>work</module>
         <module>JaxRsServiceProvider</module>
         <!--module>sdk</module-->
         <module>IntegrationTests</module>

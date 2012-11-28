@@ -43,49 +43,20 @@ import org.nuxeo.ecm.core.api.DocumentModel;
 public class WorkDocumentModelHandler
         extends AuthorityItemDocumentModelHandler<WorksCommon> {
 
-	/**
-	  * Common part schema label
-	  */
-	private static final String COMMON_PART_LABEL = "works_common";
+    /**
+      * Common part schema label
+      */
+    private static final String COMMON_PART_LABEL = "works_common";
    
-	public WorkDocumentModelHandler() {
-		super(COMMON_PART_LABEL);
-	}
+    public WorkDocumentModelHandler() {
+        super(COMMON_PART_LABEL);
+    }
 
     @Override
     public String getAuthorityServicePath(){
         return WorkAuthorityClient.SERVICE_PATH_COMPONENT;    //  CSPACE-3932
     }
-	
-   /**
-     * Handle display name.
-     *
-     * @param docModel the doc model
-     * @throws Exception the exception
-     
-	/*@Override
-	protected void handleComputedDisplayNames(DocumentModel docModel) throws Exception {
-		String commonPartLabel = getServiceContext().getCommonPartLabel("works");
-		Boolean displayNameComputed = (Boolean) docModel.getProperty(commonPartLabel,
-				WorkJAXBSchema.DISPLAY_NAME_COMPUTED);
-		Boolean shortDisplayNameComputed = (Boolean) docModel.getProperty(commonPartLabel,
-				WorkJAXBSchema.SHORT_DISPLAY_NAME_COMPUTED);
-		if(displayNameComputed==null)
-			displayNameComputed = true;
-		if(shortDisplayNameComputed==null)
-			shortDisplayNameComputed = true;
-		if (displayNameComputed || shortDisplayNameComputed) {
-			String displayName = prepareDefaultDisplayName(
-				(String) docModel.getProperty(commonPartLabel, WorkJAXBSchema.DISPLAY_NAME)); 
-			if (displayNameComputed) {
-				docModel.setProperty(commonPartLabel, WorkJAXBSchema.DISPLAY_NAME, displayName);
-			}
-			if (shortDisplayNameComputed) {
-				docModel.setProperty(commonPartLabel, WorkJAXBSchema.SHORT_DISPLAY_NAME, displayName);
-			}
-		}
-	}
-	*/
+    
    /**
      * Produces a default displayName from one or more supplied fields.
      * @see WorkAuthorityClientUtils.prepareDefaultDisplayName() which
@@ -95,19 +66,19 @@ public class WorkDocumentModelHandler
      * @return the default display name
      * @throws Exception
      */
-	private static String prepareDefaultDisplayName(String name) throws Exception {
-		StringBuilder newStr = new StringBuilder();
-		newStr.append(name);
-		return newStr.toString();
-	}
+    private static String prepareDefaultDisplayName(String name) throws Exception {
+        StringBuilder newStr = new StringBuilder();
+        newStr.append(name);
+        return newStr.toString();
+    }
 
-	/**
-	 * getQProperty converts the given property to qualified schema property
-	 * @param prop
-	 * @return
-	 */
+    /**
+     * getQProperty converts the given property to qualified schema property
+     * @param prop
+     * @return
+     */
     @Override
-	public String getQProperty(String prop) {
-		return WorkConstants.NUXEO_SCHEMA_NAME + ":" + prop;
-	}
+    public String getQProperty(String prop) {
+        return WorkConstants.NUXEO_SCHEMA_NAME + ":" + prop;
+    }
 }

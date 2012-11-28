@@ -25,8 +25,7 @@ package org.collectionspace.services.client.test;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
- 
+import java.util.Map; 
 import org.collectionspace.services.WorkJAXBSchema;
 import org.collectionspace.services.client.AbstractCommonListUtils;
 import org.collectionspace.services.client.AuthorityClient;
@@ -41,17 +40,9 @@ import org.collectionspace.services.work.WorkTermGroupList;
 import org.collectionspace.services.work.WorkTermGroup;
 import org.collectionspace.services.work.WorkauthoritiesCommon;
 import org.collectionspace.services.work.WorksCommon;
-// possibly needed
-import org.collectionspace.services.work.CreatorGroupList;
-import org.collectionspace.services.work.CreatorGroup;
-import org.collectionspace.services.work.PublisherGroupList;
-import org.collectionspace.services.work.PublisherGroup;
- 
 import org.jboss.resteasy.client.ClientResponse;
- 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
- 
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.Test;
@@ -448,13 +439,8 @@ public class WorkAuthorityServiceTest extends AbstractAuthorityServiceTest<Worka
     protected WorkauthoritiesCommon updateInstance(WorkauthoritiesCommon workauthoritiesCommon) {
         WorkauthoritiesCommon result = new WorkauthoritiesCommon();
 
-<<<<<<< HEAD
-		result.setTermDisplayName("updated-" + workauthoritiesCommon.getTermDisplayName());
-		result.setVocabType("updated-" + workauthoritiesCommon.getVocabType());
-=======
         result.setDisplayName("updated-" + workauthoritiesCommon.getDisplayName());
         result.setVocabType("updated-" + workauthoritiesCommon.getVocabType());
->>>>>>> MMI-11: update to core work schema
 
         return result;
     }
