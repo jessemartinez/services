@@ -23,9 +23,11 @@
     <xs:element name="shortIdentifier" type="xs:string"/>
     <xs:element name="refName" type="xs:string"/>
 
-    <xs:element name="scopeNote" type="xs:string"/>
-    <xs:element name="genre" type="xs:string"/>
-    <xs:element name="medium" type="xs:string"/>
+    <!--xs:element name="scopeNote" type="xs:string"/-->
+    <!--xs:element name="genre" type="xs:string"/-->
+    <!--xs:element name="medium" type="xs:string"/-->
+    <xs:element name="historyNote" type="xs:string"/>
+    <xs:element name="workAuthType" type="xs:string"/>
     
     <!-- List of WorkTerms -->
     <xs:element name="workTermGroupList" type="workTermGroupList"/>
@@ -37,7 +39,7 @@
     <xs:element name="publisherGroupList" type="publisherGroupList"/>
 
     <!-- List of MigratedEntities -->
-    <xs:element name="migratedEntityGroupList" type="migratedEntityGroupList"/>
+    <!--xs:element name="migratedEntityGroupList" type="migratedEntityGroupList"/-->
 
     <!-- List of Structured Dates -->
     <xs:element name="workDateGroupList" type="workDateGroupList"/>
@@ -109,7 +111,7 @@
      Migrated Entity Group repeating structure
      ================================================================= -->
 
-    <xs:complexType name="migratedEntityGroupList">
+    <!--xs:complexType name="migratedEntityGroupList">
         <xs:sequence>
             <xs:element name="migratedEntityGroup" 
                         type="migratedEntityGroup" minOccurs="0" maxOccurs="unbounded"/>
@@ -121,7 +123,7 @@
             <xs:element name="migratedEntity" type="xs:string"/>
             <xs:element name="migratedEntityType" type="xs:string"/>
         </xs:sequence>
-    </xs:complexType>
+    </xs:complexType-->
 
 <!-- =================================================================
      Structured Date repeating structure
