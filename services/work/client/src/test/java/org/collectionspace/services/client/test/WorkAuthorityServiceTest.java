@@ -86,17 +86,12 @@ public class WorkAuthorityServiceTest extends AbstractAuthorityServiceTest<Worka
     final String TEST_WORK_TERM_SOURCE_DETAIL = "internal";
     final String TEST_WORK_TERM_SOURCE_ID = "12345";    
     final String TEST_WORK_TERM_SOURCE_NOTE = "source note goes here";
-    //final String TEST_WORK_SCOPE_NOTE = "scope note goes here";
-    //final String TEST_WORK_GENRE = "comedy";
-    //final String TEST_WORK_MEDIUM = "film";
     final String TEST_WORK_HISTORY_NOTE = "history note goes here";
     final String TEST_WORK_AUTH_TYPE = "movingimage";
     final String TEST_WORK_CREATOR_GROUP_CREATOR = "Frank Oz";
     final String TEST_WORK_CREATOR_GROUP_CREATOR_TYPE = "director";
     final String TEST_WORK_PUBLISHER_GROUP_PUBLISHER = "TriStar Pictures";
     final String TEST_WORK_PUBLISHER_GROUP_PUBLISHER_TYPE = "distributor";
-    //final String TEST_WORK_MIGRATED_ENTITY_GROUP_MIGRATED_ENTITY = "TriStar Pictures";
-    //final String TEST_WORK_MIGRATED_ENTITY_GROUP_MIGRATED_ENTITY_TYPE = "Distributor";
     final String TEST_WORK_SHORT_IDENTIFIER = "muppetstakemanhattan";
     final String TEST_WORK_REFNAME = "refname";
     
@@ -129,9 +124,6 @@ public class WorkAuthorityServiceTest extends AbstractAuthorityServiceTest<Worka
         
         // Fields present in all authority records.
         workMap.put(WorkJAXBSchema.WORK_SHORT_IDENTIFIER, TEST_WORK_SHORT_IDENTIFIER);
-        //workMap.put(WorkJAXBSchema.WORK_SCOPE_NOTE, TEST_WORK_SCOPE_NOTE);
-        //workMap.put(WorkJAXBSchema.WORK_GENRE, TEST_WORK_GENRE);
-        //workMap.put(WorkJAXBSchema.WORK_MEDIUM, TEST_WORK_MEDIUM);
         workMap.put(WorkJAXBSchema.WORK_HISTORY_NOTE, TEST_WORK_HISTORY_NOTE);
         workMap.put(WorkJAXBSchema.WORK_AUTH_TYPE, TEST_WORK_AUTH_TYPE);
         
@@ -195,10 +187,6 @@ public class WorkAuthorityServiceTest extends AbstractAuthorityServiceTest<Worka
                 res.releaseConnection();
             }
         }
-
-        // Try to Update with computed false and no displayName
-        //work.setDisplayNameComputed(false);
-        //work.setDisplayName(null);
         
         //
         // Make an invalid UPDATE request, without a display name
@@ -456,11 +444,7 @@ public class WorkAuthorityServiceTest extends AbstractAuthorityServiceTest<Worka
         Assert.assertEquals(updated.getDisplayName(),
             original.getDisplayName(), 
             "Display name in updated object did not match submitted data.");
-                    
-                    
-        //Assert.assertEquals(updated.getTermDisplayName(),
-        //          original.getTermDisplayName(),
-        //          "Display name in updated object did not match submitted data.");
+    
     }
  
     protected void compareReadInstances(WorkauthoritiesCommon original,
@@ -518,11 +502,6 @@ public class WorkAuthorityServiceTest extends AbstractAuthorityServiceTest<Worka
     @Override
     protected void verifyReadItemInstance(WorksCommon item)
                 throws Exception {
-        // Copied from Taxon -- Keep?
-        //Assert.assertNotNull(item.getTermDisplayName(), "Field value is unexpectedly null.");
-        //Assert.assertEquals(item.getTermDisplayName(), TEST_WORK_TERM_DISPLAY_NAME,
-        //  "Field value " + item.getTermDisplayName()
-        //  + "does not match expected value " + TEST_WORK_TERM_DISPLAY_NAME);
     }
  
     @Override
