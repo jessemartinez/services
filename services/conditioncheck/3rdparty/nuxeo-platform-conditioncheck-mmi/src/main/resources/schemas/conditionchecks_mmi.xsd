@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+
+<!--
+    Condition check schema (XSD)
+    
+    Entity  : Conditioncheck
+    Part    : Local - Museum of the Moving Image
+    Used for: Nuxeo EP core document type
+
+    $LastChangedRevision$
+    $LastChangedDate$
+-->
+
+<xs:schema 
+    xmlns:xs="http://www.w3.org/2001/XMLSchema"
+    xmlns:ns="http://collectionspace.org/conditioncheck/local/mmi"
+    xmlns="http://collectionspace.org/conditioncheck/local/mmi"
+    targetNamespace="http://collectionspace.org/conditioncheck/local/mmi"
+    version="0.1">
+    
+    <xs:element name="technicalChangeGroupList" type="technicalChangeGroupList"/>
+
+   <!-- Repeating Groups -->
+   <!-- =================================================================
+        Technical Change Group repeating structure
+        ================================================================= -->
+    <xs:complexType name="technicalChangeGroupList">
+        <xs:sequence>
+            <xs:element name="technicalChangeGroup" type="technicalChangeGroup" minOccurs="0"
+                        maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="technicalChangeGroup">
+        <xs:sequence>
+            <xs:element name="technicalChange" type="xs:string"/>
+            <xs:element name="technicalChangeReason" type="xs:string"/>
+            <xs:element name="technicalChangeDate" type="structuredDateGroup"/>
+            <xs:element name="technicalChangeNote" type="xs:string"/>
+            <xs:element name="previousSupport" type="xs:string"/>
+            <xs:element name="newSupport" type="xs:string"/>
+        </xs:sequence>
+    </xs:complexType>
+
+   <!-- =================================================================
+        Structured Date repeating structure
+        ================================================================= -->
+    
+    <!-- Before (re)using this generic complex type in any record type -->
+    <!-- other than CollectionObject, be sure to verify that Nuxeo handles -->
+    <!-- that correctly in its table creation/row linking. -->
+    <xs:complexType name="structuredDateGroup">
+        <xs:sequence>
+            <xs:element name="dateDisplayDate" type="xs:string"/>
+            <xs:element name="dateAssociation" type="xs:string"/>
+            <xs:element name="dateEarliestSingleYear" type="xs:integer"/>
+            <xs:element name="dateEarliestSingleMonth" type="xs:integer"/>
+            <xs:element name="dateEarliestSingleDay" type="xs:integer"/>
+            <xs:element name="dateEarliestSingleEra" type="xs:string"/>
+            <xs:element name="dateEarliestSingleCertainty" type="xs:string"/>
+            <xs:element name="dateEarliestSingleQualifier" type="xs:string"/>
+            <xs:element name="dateEarliestSingleQualifierValue" type="xs:integer"/>
+            <xs:element name="dateEarliestSingleQualifierUnit" type="xs:string"/>
+            <xs:element name="dateLatestYear" type="xs:integer"/>
+            <xs:element name="dateLatestMonth" type="xs:integer"/>
+            <xs:element name="dateLatestDay" type="xs:integer"/>
+            <xs:element name="dateLatestEra" type="xs:string"/>
+            <xs:element name="dateLatestCertainty" type="xs:string"/>
+            <xs:element name="dateLatestQualifier" type="xs:string"/>
+            <xs:element name="dateLatestQualifierValue" type="xs:integer"/>
+            <xs:element name="dateLatestQualifierUnit" type="xs:string"/>
+            <xs:element name="datePeriod" type="xs:string"/>
+            <xs:element name="dateNote" type="xs:string"/>
+            <xs:element name="dateEarliestScalarValue" type="xs:date"/>
+            <xs:element name="dateLatestScalarValue" type="xs:date"/>
+            <xs:element name="scalarValuesComputed" type="xs:boolean"/>
+        </xs:sequence>
+    </xs:complexType>
+</xs:schema>

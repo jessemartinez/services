@@ -10,17 +10,17 @@
             <service:DocHandlerParams xmlns:service="http://collectionspace.org/services/config/service">
                 <service:params>
                     <service:ListResultsFields>
-                        <service:ListResultField merge:matcher="skip" merge:action="insert" >
+                        <service:ListResultField merge:matcher="skip" merge:action="insert">
                             <service:element>caption</service:element>
                             <service:schema>collectionobjects_mmi</service:schema>
                             <service:xpath>caption</service:xpath>
                         </service:ListResultField>
-                        <service:ListResultField>
+                        <service:ListResultField merge:matcher="skip" merge:action="insert">
                             <service:element>artifactClass</service:element>
                             <service:schema>collectionobjects_mmi</service:schema>
                             <service:xpath>artifactClass</service:xpath>
                         </service:ListResultField>
-                        <service:ListResultField>
+                        <service:ListResultField merge:matcher="skip" merge:action="insert">
                             <service:element>workType</service:element>
                             <service:schema>collectionobjects_mmi</service:schema>
                             <service:xpath>workType</service:xpath>
@@ -63,6 +63,36 @@
                 </service:part>
             </service:object>
         </tenant:serviceBindings>
+
+        <tenant:serviceBindings merge:matcher="id" id="Conditionchecks">
+            <service:object xmlns:service="http://collectionspace.org/services/config/service" >
+                <service:part id="42" merge:matcher="skip" merge:action="insert" control_group="Managed" versionable="true" auditable="false" label="conditionchecks_mmi" updated="" order="3">
+                    <service:content contentType="application/xml">
+                        <service:xmlContent namespaceURI="http://collectionspace.org/services/conditioncheck/local/mmi" schemaLocation="http://collectionspace.org/services/conditioncheck/local/mmi http://collectionspace.org/services/conditioncheck/local/conditionchecks_mmi.xsd" />
+                     </service:content>
+                     <service:properties>
+                        <!-- See CSPACE-3938 for potential additional authRef and termRef entries -->
+                        <types:item xmlns:types="http://collectionspace.org/services/config/types">
+                              <types:key>termRef</types:key>
+                              <types:value>technicalChangeList/*/technicalChange</types:value>
+                        </types:item>
+                        <types:item xmlns:types="http://collectionspace.org/services/config/types">
+                              <types:key>termRef</types:key>
+                              <types:value>technicalChangeList/*/technicalChangeReason</types:value>
+                        </types:item>
+                        <types:item xmlns:types="http://collectionspace.org/services/config/types">
+                              <types:key>termRef</types:key>
+                              <types:value>technicalChangeList/*/previousSupport</types:value>
+                        </types:item>
+                        <types:item xmlns:types="http://collectionspace.org/services/config/types">
+                              <types:key>termRef</types:key>
+                              <types:value>technicalChangeList/*/newSupport</types:value>
+                        </types:item>
+                    </service:properties>
+                </service:part>
+            </service:object>
+        </tenant:serviceBindings>
+
 
         <tenant:serviceBindings merge:matcher="id" id="Media">
             <service:DocHandlerParams xmlns:service="http://collectionspace.org/services/config/service">

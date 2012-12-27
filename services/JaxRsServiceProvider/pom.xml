@@ -22,18 +22,18 @@
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
-			<scope>provided</scope>
+			<!--scope>provided</scope-->
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-log4j12</artifactId>
-			<scope>provided</scope>
+			<!--scope>provided</scope-->
         </dependency>
         <dependency>
             <groupId>log4j</groupId>
             <artifactId>log4j</artifactId>
             <version>1.2.14</version>
-            <scope>provided</scope>
+            <!--scope>provided</scope-->
         </dependency>
         <!-- somewhere dependency is added 1.5.8 unnecessarily -->
         <dependency>
@@ -144,6 +144,11 @@
         <dependency>
             <groupId>org.collectionspace.services</groupId>
             <artifactId>org.collectionspace.services.loanout.service</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.collectionspace.services</groupId>
+            <artifactId>org.collectionspace.services.conditioncheck.service</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
