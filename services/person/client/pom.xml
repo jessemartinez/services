@@ -5,11 +5,10 @@
     <parent>
         <groupId>org.collectionspace.services</groupId>
         <artifactId>org.collectionspace.services.person</artifactId>
-        <version>4.1.1</version>
+        <version>4.2-SNAPSHOT</version>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
-    <groupId>org.collectionspace.services</groupId>
     <artifactId>org.collectionspace.services.person.client</artifactId>
     <name>services.person.client</name>
     
@@ -78,8 +77,7 @@
         <dependency>
             <groupId>commons-httpclient</groupId>
             <artifactId>commons-httpclient</artifactId>
-            <version>3.1</version>
-        </dependency>
+            </dependency>
     </dependencies>
     
     <build>

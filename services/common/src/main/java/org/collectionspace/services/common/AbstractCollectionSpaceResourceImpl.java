@@ -28,7 +28,6 @@ import java.util.List;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
-import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
@@ -47,10 +46,8 @@ import org.collectionspace.services.common.repository.RepositoryClientFactory;
 import org.collectionspace.services.common.security.UnauthorizedException;
 import org.collectionspace.services.common.storage.StorageClient;
 import org.collectionspace.services.common.storage.jpa.JpaStorageClientImpl;
-
 import org.jboss.resteasy.core.ResourceMethod;
 import org.jboss.resteasy.spi.HttpRequest;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -68,14 +65,14 @@ public abstract class AbstractCollectionSpaceResourceImpl<IT, OT>
 
     // Fields for default client factory and client
     /** The repository client factory. */
-    private RepositoryClientFactory repositoryClientFactory;
+    private RepositoryClientFactory<IT, OT> repositoryClientFactory;
     
     /** The repository client. */
-    private RepositoryClient repositoryClient;
+    private RepositoryClient<IT, OT> repositoryClient;
     
     /** The storage client. */
     private StorageClient storageClient;
-
+    
     /**
      * Extract id.
      *
@@ -88,13 +85,13 @@ public abstract class AbstractCollectionSpaceResourceImpl<IT, OT>
         String[] segments = uri.split("/");
         String id = segments[segments.length - 1];
         return id;
-    }    
-    
+    }
+            
     /**
      * Instantiates a new abstract collection space resource.
      */
     public AbstractCollectionSpaceResourceImpl() {
-        repositoryClientFactory = RepositoryClientFactory.getInstance();
+        repositoryClientFactory = (RepositoryClientFactory<IT, OT>) RepositoryClientFactory.getInstance();
     }
 
     /* (non-Javadoc)
@@ -108,7 +105,7 @@ public abstract class AbstractCollectionSpaceResourceImpl<IT, OT>
      * @see org.collectionspace.services.common.CollectionSpaceResource#getRepositoryClient(org.collectionspace.services.common.context.ServiceContext)
      */
     @Override
-    synchronized public RepositoryClient getRepositoryClient(ServiceContext<IT, OT> ctx) {
+    synchronized public RepositoryClient<IT, OT> getRepositoryClient(ServiceContext<IT, OT> ctx) {
         if(repositoryClient != null){
             return repositoryClient;
         }
