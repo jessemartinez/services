@@ -1215,3 +1215,49 @@ received on loan.',
         SELECT  csid
         FROM    id_generators
         );
+
+-- OMCA CATALOGING LOANS_IN_NUMBER_ALT
+
+INSERT INTO id_generators
+    (csid, displayname, description, priority, last_generated_id, id_generator_state)
+  SELECT 
+     '6b6fdbee-fe3b-428a-9987-d4da96885bcc',
+     'OMCA Cataloging Loan In Number Alternate',
+     'OMCA Cataloging. Identifies activities in which collection objects are
+received on loan. Uses alternate prefix.',
+     '9',
+     '',
+'<org.collectionspace.services.id.SettableIDGenerator>
+   <parts>
+    <org.collectionspace.services.id.StringIDGeneratorPart>
+      <initialValue>EX</initialValue>
+      <currentValue>EX</currentValue>
+    </org.collectionspace.services.id.StringIDGeneratorPart>
+    <org.collectionspace.services.id.YearIDGeneratorPart>
+      <currentValue></currentValue>
+    </org.collectionspace.services.id.YearIDGeneratorPart>
+    <org.collectionspace.services.id.StringIDGeneratorPart>
+      <initialValue>.</initialValue>
+      <currentValue>.</currentValue>
+    </org.collectionspace.services.id.StringIDGeneratorPart>
+    <org.collectionspace.services.id.NumericIDGeneratorPart>
+      <maxLength>6</maxLength>
+      <initialValue>1</initialValue>
+      <currentValue>-1</currentValue>
+    </org.collectionspace.services.id.NumericIDGeneratorPart>
+    <org.collectionspace.services.id.StringIDGeneratorPart>
+      <initialValue>.</initialValue>
+      <currentValue>.</currentValue>
+    </org.collectionspace.services.id.StringIDGeneratorPart>
+    <org.collectionspace.services.id.NumericIDGeneratorPart>
+      <maxLength>6</maxLength>
+      <initialValue>1</initialValue>
+      <currentValue>-1</currentValue>
+    </org.collectionspace.services.id.NumericIDGeneratorPart>
+  </parts>
+</org.collectionspace.services.id.SettableIDGenerator>'
+  WHERE '6b6fdbee-fe3b-428a-9987-d4da96885bcc' NOT IN
+        (
+        SELECT  csid
+        FROM    id_generators
+        );
