@@ -63,7 +63,6 @@ import org.collectionspace.services.common.config.TenantBindingConfigReaderImpl;
 import org.collectionspace.services.common.config.TenantBindingUtils;
 import org.collectionspace.services.common.storage.PreparedStatementBuilder;
 import org.collectionspace.services.common.vocabulary.RefNameServiceUtils.AuthorityItemSpecifier;
-import org.collectionspace.services.common.vocabulary.RefNameServiceUtils.Specifier;
 import org.collectionspace.services.config.tenant.TenantBindingType;
 import org.collectionspace.services.config.tenant.RepositoryDomainType;
 
@@ -212,6 +211,9 @@ public class RepositoryClientImpl implements RepositoryClient<PoxPayloadIn, PoxP
         } catch (BadRequestException bre) {
             throw bre;
         } catch (Exception e) {
+        	if (logger.isDebugEnabled()) {
+        		logger.debug("Call to low-level Nuxeo document create call failed: ", e);
+        	}
             throw new NuxeoDocumentException(e);
         } finally {
             if (repoSession != null) {
@@ -341,7 +343,7 @@ public class RepositoryClientImpl implements RepositoryClient<PoxPayloadIn, PoxP
      * @throws TransactionException
      * @throws DocumentException
      */
-    @Override
+	@Override
     public void get(ServiceContext ctx, String id, DocumentHandler handler)
             throws DocumentNotFoundException, TransactionException, DocumentException {
 
@@ -359,8 +361,9 @@ public class RepositoryClientImpl implements RepositoryClient<PoxPayloadIn, PoxP
             try {
                 docModel = repoSession.getDocument(docRef);
                 assertWorkflowState(ctx, docModel);
-            } catch (ClientException ce) {
-                String msg = logException(ce, "Could not find document with CSID=" + id);
+            } catch (org.nuxeo.ecm.core.api.DocumentNotFoundException ce) {
+                String msg = logException(ce,
+                		String.format("Could not find %s resource/record with CSID=%s", ctx.getDocumentType(), id));
                 throw new DocumentNotFoundException(msg, ce);
             }
             //
@@ -373,6 +376,9 @@ public class RepositoryClientImpl implements RepositoryClient<PoxPayloadIn, PoxP
         } catch (IllegalArgumentException iae) {
             throw iae;
         } catch (DocumentException de) {
+        	if (logger.isDebugEnabled()) {
+        		logger.debug(de.getMessage(), de);
+        	}
             throw de;
         } catch (Exception e) {
             if (logger.isDebugEnabled()) {
@@ -409,7 +415,7 @@ public class RepositoryClientImpl implements RepositoryClient<PoxPayloadIn, PoxP
 
             DocumentModelList docList = null;
             // force limit to 1, and ignore totalSize
-            String query = NuxeoUtils.buildNXQLQuery(ctx, queryContext);
+            String query = NuxeoUtils.buildNXQLQuery(queryContext);
             docList = repoSession.query(query, null, 1, 0, false);
             if (docList.size() != 1) {
                 throw new DocumentNotFoundException("No document found matching filter params: " + query);
@@ -520,7 +526,7 @@ public class RepositoryClientImpl implements RepositoryClient<PoxPayloadIn, PoxP
             QueryContext queryContext = new QueryContext(ctx, whereClause);
             DocumentModelList docList = null;
             // force limit to 1, and ignore totalSize
-            String query = NuxeoUtils.buildNXQLQuery(ctx, queryContext);
+            String query = NuxeoUtils.buildNXQLQuery(queryContext);
             docList = repoSession.query(query,
                     null, //Filter
                     1, //limit
@@ -716,7 +722,11 @@ public class RepositoryClientImpl implements RepositoryClient<PoxPayloadIn, PoxP
             if (handler.isCMISQuery() == true) {
                 String inList = buildInListForDocTypes(docTypes);
                 ctx.getQueryParams().add(IQueryManager.SEARCH_RELATED_MATCH_OBJ_DOCTYPES, inList);
-                docList = getFilteredCMIS(repoSession, ctx, handler, queryContext);
+                if (isSubjectOrObjectQuery(ctx)) {
+                	docList = getFilteredCMISForSubjectOrObject(repoSession, ctx, handler, queryContext);
+                } else {
+                	docList = getFilteredCMIS(repoSession, ctx, handler, queryContext);
+                }
             } else {
                 String query = NuxeoUtils.buildNXQLQuery(docTypes, queryContext);
                 if (logger.isDebugEnabled()) {
@@ -737,7 +747,100 @@ public class RepositoryClientImpl implements RepositoryClient<PoxPayloadIn, PoxP
         return wrapDoc;
     }
 
-    /**
+    private DocumentModelList getFilteredCMISForSubjectOrObject(CoreSessionInterface repoSession,
+			ServiceContext<PoxPayloadIn, PoxPayloadOut> ctx, DocumentHandler handler, QueryContext queryContext) throws DocumentNotFoundException, DocumentException {
+    	DocumentModelList result = null;
+    	
+    	if (isSubjectOrObjectQuery(ctx) == true) {
+    		MultivaluedMap<String, String> queryParams = ctx.getQueryParams();
+        	String asEitherCsid = (String)queryParams.getFirst(IQueryManager.SEARCH_RELATED_TO_CSID_AS_EITHER);
+        	
+    		queryParams.remove(IQueryManager.SEARCH_RELATED_TO_CSID_AS_SUBJECT);
+    		queryParams.remove(IQueryManager.SEARCH_RELATED_TO_CSID_AS_OBJECT);
+
+        	//
+        	// First query for subjectCsid results.
+        	//
+    		queryParams.addFirst(IQueryManager.SEARCH_RELATED_TO_CSID_AS_SUBJECT, asEitherCsid);
+            DocumentModelList subjectDocList = getFilteredCMIS(repoSession, ctx, handler, queryContext);
+            queryParams.remove(IQueryManager.SEARCH_RELATED_TO_CSID_AS_SUBJECT);
+            
+        	//
+        	// Next query for objectCsid results.
+        	//
+	    	queryParams.addFirst(IQueryManager.SEARCH_RELATED_TO_CSID_AS_OBJECT, asEitherCsid);
+            DocumentModelList objectDocList = getFilteredCMIS(repoSession, ctx, handler, queryContext);
+            queryParams.remove(IQueryManager.SEARCH_RELATED_TO_CSID_AS_OBJECT);
+
+            //
+            // Finally, combine the two results
+            //
+            result = mergeDocumentModelLists(subjectDocList, objectDocList);
+    	}
+    	
+		return result;
+	}
+
+	private DocumentModelList mergeDocumentModelLists(DocumentModelList subjectDocList,
+			DocumentModelList objectDocList) {
+		DocumentModelList result = null;
+		
+		if (subjectDocList == null || subjectDocList.isEmpty()) {
+			return objectDocList;
+		}
+		
+		if (objectDocList == null || objectDocList.isEmpty()) {
+			return subjectDocList;
+		}
+		
+        result = new DocumentModelListImpl();
+        
+        // Add the subject list
+		Iterator<DocumentModel> iterator = subjectDocList.iterator();
+		while (iterator.hasNext()) {
+			DocumentModel dm = iterator.next();
+			addToResults(result, dm);
+		}
+		
+		// Add the object list
+		iterator = objectDocList.iterator();
+		while (iterator.hasNext()) {
+			DocumentModel dm = iterator.next();
+			addToResults(result, dm);
+		}
+
+		// Set the 'totalSize' value for book keeping sake
+		((DocumentModelListImpl) result).setTotalSize(result.size());
+
+		return result;
+	}
+
+	//
+	// Only add if it is not already in the list
+	private void addToResults(DocumentModelList result, DocumentModel dm) {
+		Iterator<DocumentModel> iterator = result.iterator();
+		boolean found = false;
+		
+		while (iterator.hasNext()) {
+			DocumentModel existingDm = iterator.next();
+			if (existingDm.getId().equals(dm.getId())) {
+				found = true;
+				break;
+			}
+		}
+		
+		if (found == false) {
+			result.add(dm);
+		}
+	}
+
+	private boolean isSubjectOrObjectQuery(ServiceContext<PoxPayloadIn, PoxPayloadOut> ctx) {
+    	MultivaluedMap<String, String> queryParams = ctx.getQueryParams();
+    	String asEitherCsid = (String)queryParams.getFirst(IQueryManager.SEARCH_RELATED_TO_CSID_AS_EITHER);
+    	return asEitherCsid != null && !asEitherCsid.isEmpty();
+	}
+
+	/**
      * Find a list of documentModels from the Nuxeo repository
      *
      * @param docTypes a list of DocType names to match
@@ -1006,11 +1109,15 @@ public class RepositoryClientImpl implements RepositoryClient<PoxPayloadIn, PoxP
             if (handler.isJDBCQuery() == true) {
                 docList = getFilteredJDBC(repoSession, ctx, handler);
             // CMIS query
-            } else if (handler.isCMISQuery() == true) {
-                docList = getFilteredCMIS(repoSession, ctx, handler, queryContext); //FIXME: REM - Need to deal with paging info in CMIS query
+            } else if (handler.isCMISQuery() == true) { //FIXME: REM - Need to deal with paging info in CMIS query
+                if (isSubjectOrObjectQuery(ctx)) {
+                	docList = getFilteredCMISForSubjectOrObject(repoSession, ctx, handler, queryContext);
+                } else {
+                    docList = getFilteredCMIS(repoSession, ctx, handler, queryContext); 
+                }
             // NXQL query
             } else {
-                String query = NuxeoUtils.buildNXQLQuery(ctx, queryContext);
+                String query = NuxeoUtils.buildNXQLQuery(queryContext);
                 if (logger.isDebugEnabled()) {
                     logger.debug("Executing NXQL query: " + query.toString());
                 }
@@ -1437,7 +1544,7 @@ public class RepositoryClientImpl implements RepositoryClient<PoxPayloadIn, PoxP
      * cannot be successfully completed
      * @throws DocumentException
      */
-    @Override
+	@Override
     public void update(ServiceContext ctx, String csid, DocumentHandler handler)
             throws BadRequestException, DocumentNotFoundException, TransactionException,
             DocumentException {
@@ -1454,8 +1561,9 @@ public class RepositoryClientImpl implements RepositoryClient<PoxPayloadIn, PoxP
             DocumentModel doc = null;
             try {
                 doc = repoSession.getDocument(docRef);
-            } catch (ClientException ce) {
-                String msg = logException(ce, "Could not find document to update with CSID=" + csid);
+            } catch (org.nuxeo.ecm.core.api.DocumentNotFoundException ce) {
+                String msg = logException(ce,
+                		String.format("Could not find %s resource/record to update with CSID=%s", ctx.getDocumentType(), csid));
                 throw new DocumentNotFoundException(msg, ce);
             }
             // Check for a versioned document, and check In and Out before we proceed.
@@ -1629,8 +1737,9 @@ public class RepositoryClientImpl implements RepositoryClient<PoxPayloadIn, PoxP
                 } else {
                 	result = false; // delete failed for some reason
                 }
-            } catch (ClientException ce) {
-                String msg = logException(ce, "Could not find document to delete with CSID=" + id);
+            } catch (org.nuxeo.ecm.core.api.DocumentNotFoundException ce) {
+                String msg = logException(ce,
+                		String.format("Could not find %s resource/record to delete with CSID=%s", ctx.getDocumentType(), id));                
                 throw new DocumentNotFoundException(msg, ce);
             }
             repoSession.save();

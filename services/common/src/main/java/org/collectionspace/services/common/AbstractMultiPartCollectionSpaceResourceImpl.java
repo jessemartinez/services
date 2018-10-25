@@ -34,6 +34,7 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.core.Context;
+import javax.ws.rs.core.Request;
 import javax.ws.rs.core.UriInfo;
 
 import org.collectionspace.services.client.PayloadOutputPart;
@@ -146,7 +147,7 @@ public abstract class AbstractMultiPartCollectionSpaceResourceImpl extends Abstr
      */
     @GET
     @Path(WorkflowClient.SERVICE_PATH)
-    public Lifecycle getWorkflow(@Context UriInfo uriInfo) {
+    public Lifecycle getWorkflow(@Context Request jaxRsRequest, @Context UriInfo uriInfo) {
     	Lifecycle result;
 
         String documentType = "undefined";
@@ -289,10 +290,10 @@ public abstract class AbstractMultiPartCollectionSpaceResourceImpl extends Abstr
     		@Context UriInfo uriInfo,
     		@PathParam("csid") String csid,
     		@PathParam("transition") String transition) {
-        PoxPayloadOut result = null;
+    	PoxPayloadOut result = null;
                 
         try {
-        	result = this.updateWorkflowWithTransition(NULL_CONTEXT, uriInfo, csid, transition);
+        	result = updateWorkflowWithTransition(NULL_CONTEXT, uriInfo, csid, transition);
         } catch (Exception e) {
             throw bigReThrow(e, ServiceMessages.UPDATE_FAILED + WorkflowClient.SERVICE_PAYLOAD_NAME, csid);
         }

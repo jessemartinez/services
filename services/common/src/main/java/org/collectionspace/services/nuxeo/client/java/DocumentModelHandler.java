@@ -47,6 +47,7 @@ import org.collectionspace.services.common.context.ServiceContext;
 import org.collectionspace.services.common.document.AbstractMultipartDocumentHandlerImpl;
 import org.collectionspace.services.common.document.DocumentException;
 import org.collectionspace.services.common.document.DocumentFilter;
+import org.collectionspace.services.common.document.DocumentNotFoundException;
 import org.collectionspace.services.common.document.DocumentWrapper;
 import org.collectionspace.services.common.document.DocumentWrapperImpl;
 import org.collectionspace.services.nuxeo.util.NuxeoUtils;
@@ -185,7 +186,7 @@ public abstract class DocumentModelHandler<T, TL>
 
     @Override
     public void handleGet(DocumentWrapper<DocumentModel> wrapDoc) throws Exception {
-        extractAllParts(wrapDoc);
+   		extractAllParts(wrapDoc);
     }
 
     @Override
@@ -241,7 +242,7 @@ public abstract class DocumentModelHandler<T, TL>
      * @throws PropertyException the property exception
      */
     abstract public AuthorityRefList getAuthorityRefs(String csid,
-    		List<AuthRefConfigInfo> authRefsInfo) throws PropertyException, Exception;    
+    		List<AuthRefConfigInfo> authRefConfigInfoList) throws PropertyException, Exception;    
 
     /*
      * Subclasses should override this method if they need to customize their refname generation
@@ -425,7 +426,7 @@ public abstract class DocumentModelHandler<T, TL>
     	
     	try {
     		QueryContext queryContext = new QueryContext(ctx, selectClause, whereClause, orderByClause);
-    		result = NuxeoUtils.buildNXQLQuery(ctx, queryContext);
+    		result = NuxeoUtils.buildNXQLQuery(queryContext);
     	} catch (DocumentException de) {
     		throw de;
     	} catch (Exception x) {
@@ -462,7 +463,7 @@ public abstract class DocumentModelHandler<T, TL>
 	    	MultivaluedMap<String, String> queryParams = getServiceContext().getQueryParams();
 	    	String asSubjectCsid = (String)queryParams.getFirst(IQueryManager.SEARCH_RELATED_TO_CSID_AS_SUBJECT);
 	    	String asObjectCsid = (String)queryParams.getFirst(IQueryManager.SEARCH_RELATED_TO_CSID_AS_OBJECT);
-	    	String asEitherCsid = (String)queryParams.getFirst(IQueryManager.SEARCH_RELATED_TO_CSID_AS_EITHER);
+	    	
 	    	String matchObjDocTypes = (String)queryParams.getFirst(IQueryManager.SEARCH_RELATED_MATCH_OBJ_DOCTYPES);
 	    	String selectDocType = (String)queryParams.getFirst(IQueryManager.SELECT_DOC_TYPE_FIELD);
 
@@ -475,10 +476,13 @@ public abstract class DocumentModelHandler<T, TL>
 	    			+ IRelationsManager.CMIS_CSPACE_RELATIONS_TITLE + ", "
 	    			+ IRelationsManager.CMIS_CSPACE_RELATIONS_OBJECT_ID + ", "
 	    			+ IRelationsManager.CMIS_CSPACE_RELATIONS_SUBJECT_ID;
+
 	    	String targetTable = docType + " " + IQueryManager.CMIS_TARGET_PREFIX;
 	    	String relTable = IRelationsManager.DOC_TYPE + " " + IQueryManager.CMIS_RELATIONS_PREFIX;
-	    	String relObjectCsidCol = IRelationsManager.CMIS_CSPACE_RELATIONS_OBJECT_ID;
+	    	
 	    	String relSubjectCsidCol = IRelationsManager.CMIS_CSPACE_RELATIONS_SUBJECT_ID;
+	    	String relObjectCsidCol = IRelationsManager.CMIS_CSPACE_RELATIONS_OBJECT_ID;
+	    	
 	    	String targetCsidCol = IQueryManager.CMIS_TARGET_CSID;
 	    	String tenantID = this.getServiceContext().getTenantId();
 
@@ -495,11 +499,6 @@ public abstract class DocumentModelHandler<T, TL>
 	    		// Since our query param is the "object" value, join the tables where the CSID of the document is the other side (the "subject") of the relationship.
 	    		theOnClause = relSubjectCsidCol + " = " + targetCsidCol; 
 	    		theWhereClause = relObjectCsidCol + " = " + "'" + asObjectCsid + "'";
-	    	} else if (asEitherCsid != null && !asEitherCsid.isEmpty()) {
-	    		theOnClause = relObjectCsidCol + " = " + targetCsidCol
-	    				+ " OR " + relSubjectCsidCol + " = " + targetCsidCol;
-	    		theWhereClause = relSubjectCsidCol + " = " + "'" + asEitherCsid + "'"
-	    				+ " OR " + relObjectCsidCol + " = " + "'" + asEitherCsid + "'";
 	    	} else {
 	    		//Since the call to isCMISQuery() return true, we should never get here.
 	    		logger.error("Attempt to make CMIS query failed because the HTTP request was missing valid query parameters.");
@@ -511,6 +510,9 @@ public abstract class DocumentModelHandler<T, TL>
 	    		theWhereClause += " AND (" + IRelationsManager.CMIS_CSPACE_RELATIONS_OBJECT_TYPE 
 	    							+ " IN " + matchObjDocTypes + ")";
 	    	}
+	    	
+	    	// Qualify the search for predicate types
+	    	theWhereClause = addWhereClauseForPredicates(theWhereClause, queryParams);
 	    	
 	    	// Qualify the query with the current tenant ID.
     		theWhereClause += IQueryManager.SEARCH_QUALIFIER_AND + IQueryManager.CMIS_JOIN_TENANT_ID_FILTER + " = '" + tenantID + "'";
@@ -548,5 +550,31 @@ public abstract class DocumentModelHandler<T, TL>
         
         return result;
     }
+
+	private String addWhereClauseForPredicates(String theWhereClause, MultivaluedMap<String, String> queryParams) {
+		if (queryParams.containsKey(IQueryManager.SEARCH_RELATED_PREDICATE)) {
+			List<String> predicateList = queryParams.get(IQueryManager.SEARCH_RELATED_PREDICATE);
+			
+			if (predicateList.size() == 1) {
+		    	String predicate = (String)queryParams.getFirst(IQueryManager.SEARCH_RELATED_PREDICATE);
+		    	if (predicate != null && !predicate.trim().isEmpty()) {
+		    		theWhereClause += IQueryManager.SEARCH_QUALIFIER_AND + IRelationsManager.CMIS_CSPACE_RELATIONS_PREDICATE + " = '" + predicate + "'";
+		    	}
+			} else if (predicateList.size() > 1) {
+				StringBuffer partialClause = new StringBuffer();
+				for (String predicate : predicateList) {
+					if (!predicate.trim().isEmpty()) {
+						partialClause.append("'" + predicate + "', ");
+					}
+				}
+				String inValues = partialClause.toString().replaceAll(", $", ""); // remove the last ', ' squence
+				if (!inValues.trim().isEmpty()) {
+					theWhereClause += IQueryManager.SEARCH_QUALIFIER_AND + IRelationsManager.CMIS_CSPACE_RELATIONS_PREDICATE + " IN (" + inValues + ")";
+				}
+			}
+		}
+		
+		return theWhereClause;
+	}
     
 }

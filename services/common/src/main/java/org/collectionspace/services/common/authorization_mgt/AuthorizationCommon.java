@@ -68,32 +68,18 @@ public class AuthorizationCommon {
     // for READ-ONLY
     final public static String ACTIONGROUP_RL_NAME = "RL";
     final public static ActionType[] ACTIONSET_RL = {ActionType.READ, ActionType.SEARCH};
-
-    
-	/*
-	 * Inner class to deal with predefined ADMIN and READER action groupds
-	 */
-	public class ActionGroup {
-		String name;
-		ActionType[] actions;
-		
-		public String getName() {
-			return name;
-		}
-	}
 	
 	static ActionGroup ACTIONGROUP_CRUDL;
 	static ActionGroup ACTIONGROUP_RL;
 	
 	// A static block to initialize the predefined action groups
 	static {
-		AuthorizationCommon ac = new AuthorizationCommon();
 		// For admin
-		ACTIONGROUP_CRUDL = ac.new ActionGroup();
+		ACTIONGROUP_CRUDL = new ActionGroup();
 		ACTIONGROUP_CRUDL.name = ACTIONGROUP_CRUDL_NAME;
 		ACTIONGROUP_CRUDL.actions = ACTIONSET_CRUDL;
 		// For reader
-		ACTIONGROUP_RL = ac.new ActionGroup();
+		ACTIONGROUP_RL = new ActionGroup();
 		ACTIONGROUP_RL.name = ACTIONGROUP_RL_NAME;
 		ACTIONGROUP_RL.actions = ACTIONSET_RL;
 
@@ -1088,6 +1074,13 @@ public class AuthorizationCommon {
 		        TenantBindingType tenantBinding = tenantBindings.get(tenantId);
 	    		Role adminRole = AuthorizationCommon.getRole(em, tenantBinding.getId(), ROLE_TENANT_ADMINISTRATOR);
 	    		Role readonlyRole = AuthorizationCommon.getRole(em, tenantBinding.getId(), ROLE_TENANT_READER);
+	    		
+	    		if (adminRole == null || readonlyRole == null) {
+	    			String msg = String.format("One or more of the required default CollectionSpace administrator roles is missing or was never created.  If you're setting up a new instance of CollectionSpace, shutdown the Tomcat server and run the 'ant import' command from the root/top level CollectionSpace 'Services' source directory.  Then try restarting Tomcat.");
+	    			logger.error(msg);
+	    			throw new RuntimeException("One or more of the required default CollectionSpace administrator roles is missing or was never created.");
+	    		}
+	    		
 		        for (ServiceBindingType serviceBinding : tenantBinding.getServiceBindings()) {
 		        	String prop = ServiceBindingUtils.getPropertyValue(serviceBinding, REFRESH_AUTZ_PROP);
 		        	if (prop == null ? true : Boolean.parseBoolean(prop)) {

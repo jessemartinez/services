@@ -441,7 +441,7 @@ public class RefNameServiceUtils {
              * <xs:element name="workflowState" type="xs:string" minOccurs="1"
              * />
              */
-            String fieldList = "docType|docId|docNumber|docName|sourceField|uri|refName|updatedAt|workflowState";
+            String fieldList = "docType|docId|docNumber|docName|sourceField|uri|refName|updatedAt|workflowState";  // FIXME: Should not be hard-coded string
             commonList.setFieldsReturned(fieldList);
 
             // As a side-effect, the method called below modifies the value of
@@ -966,6 +966,13 @@ public class RefNameServiceUtils {
         return nRefsFoundTotal;
     }
 
+    /**
+     * Clone an AuthorityRefDocItem which is a JAX-B generated class.  Be sure we're copying every field defined in the XSD (XML Schema) that is
+     * found here services\jaxb\src\main\resources\authorityrefdocs.xsd
+     * @param ilistItem
+     * @param sourceField
+     * @return
+     */
     private static AuthorityRefDocList.AuthorityRefDocItem cloneAuthRefDocItem(
             AuthorityRefDocList.AuthorityRefDocItem ilistItem, String sourceField) {
         AuthorityRefDocList.AuthorityRefDocItem newlistItem = new AuthorityRefDocList.AuthorityRefDocItem();
@@ -975,24 +982,27 @@ public class RefNameServiceUtils {
         newlistItem.setDocType(ilistItem.getDocType());
         newlistItem.setUri(ilistItem.getUri());
         newlistItem.setSourceField(sourceField);
+        newlistItem.setRefName(ilistItem.getRefName());
+        newlistItem.setUpdatedAt(ilistItem.getUpdatedAt());
+        newlistItem.setWorkflowState(ilistItem.getWorkflowState());
         return newlistItem;
     }
 
     public static List<AuthRefInfo> findAuthRefPropertiesInDoc(
             DocumentModel docModel,
-            List<AuthRefConfigInfo> authRefFieldInfo,
+            List<AuthRefConfigInfo> authRefFieldInfoList,
             String refNameToMatch,
             List<AuthRefInfo> foundProps) {
-    	return findAuthRefPropertiesInDoc(docModel, authRefFieldInfo, 
+    	return findAuthRefPropertiesInDoc(docModel, authRefFieldInfoList, 
     									refNameToMatch, false, foundProps);
     }
     
     public static List<AuthRefInfo> findAuthRefPropertiesInDoc(
             DocumentModel docModel,
-            List<AuthRefConfigInfo> authRefFieldInfo,
+            List<AuthRefConfigInfo> authRefFieldInfoList,
             String refNameToMatch,
             boolean matchBaseOnly,
-            List<AuthRefInfo> foundProps) {
+            List<AuthRefInfo> authRefInfoList) {
         // Assume that authRefFieldInfo is keyed by the field name (possibly mapped for UI)
         // and the values are elPaths to the field, where intervening group structures in
         // lists of complex structures are replaced with "*". Thus, valid paths include
@@ -1005,20 +1015,20 @@ public class RefNameServiceUtils {
         // "schemaname:complexlistname/*/complexfieldname/fieldname"
         // "schemaname:complexlistname/*/complexlistname/*/fieldname"
         // etc.
-        for (AuthRefConfigInfo arci : authRefFieldInfo) {
+        for (AuthRefConfigInfo arci : authRefFieldInfoList) {
             try {
                 // Get first property and work down as needed.
                 Property prop = docModel.getProperty(arci.pathEls[0]);
-                findAuthRefPropertiesInProperty(foundProps, prop, arci, 0, refNameToMatch, matchBaseOnly);
+                findAuthRefPropertiesInProperty(authRefInfoList, prop, arci, 0, refNameToMatch, matchBaseOnly);
             } catch (Exception e) {
                 logger.error("Problem fetching property: " + arci.pathEls[0]);
             }
         }
-        return foundProps;
+        return authRefInfoList;
     }
 
     private static List<AuthRefInfo> findAuthRefPropertiesInProperty(
-            List<AuthRefInfo> foundProps,
+            List<AuthRefInfo> authRefInfoList,
             Property prop,
             AuthRefConfigInfo arci,
             int pathStartIndex, // Supports recursion and we work down the path
@@ -1030,11 +1040,11 @@ public class RefNameServiceUtils {
         }
         AuthRefInfo ari = null;
         if (prop == null) {
-            return foundProps;
+            return authRefInfoList;
         }
 
         if (prop instanceof StringProperty) {    // scalar string
-            addARIifMatches(refNameToMatch, matchBaseOnly, arci, prop, foundProps); // REM - Side effect that foundProps gets changed/updated
+            addARIifMatches(refNameToMatch, matchBaseOnly, arci, prop, authRefInfoList); // REM - Side effect that foundProps gets changed/updated
         } else if (prop instanceof List) {
             List<Property> propList = (List<Property>) prop;
             // run through list. Must either be list of Strings, or Complex
@@ -1045,12 +1055,12 @@ public class RefNameServiceUtils {
                                 + arci.pathEls.toString());
                         break;
                     } else {
-                        addARIifMatches(refNameToMatch, matchBaseOnly, arci, listItemProp, foundProps);
+                        addARIifMatches(refNameToMatch, matchBaseOnly, arci, listItemProp, authRefInfoList);
                     }
                 } else if (listItemProp.isComplex()) {
                     // Just recurse to handle this. Note that since this is a list of complex, 
                     // which should look like listName/*/... we add 2 to the path start index 
-                    findAuthRefPropertiesInProperty(foundProps, listItemProp, arci,
+                    findAuthRefPropertiesInProperty(authRefInfoList, listItemProp, arci,
                             pathStartIndex + 2, refNameToMatch, matchBaseOnly);
                 } else {
                     logger.error("Configuration for authRefs does not match schema structure: "
@@ -1063,7 +1073,7 @@ public class RefNameServiceUtils {
             try {
                 Property localProp = prop.get(localPropName);
                 // Now just recurse, pushing down the path 1 step
-                findAuthRefPropertiesInProperty(foundProps, localProp, arci,
+                findAuthRefPropertiesInProperty(authRefInfoList, localProp, arci,
                         pathStartIndex, refNameToMatch, matchBaseOnly);
             } catch (PropertyNotFoundException pnfe) {
                 logger.error("Could not find property: [" + localPropName + "] in path: "
@@ -1076,10 +1086,10 @@ public class RefNameServiceUtils {
         }
 
         if (ari != null) {
-            foundProps.add(ari); //FIXME: REM - This is dead code.  'ari' is never touched after being initalized to null.  Why?
+            authRefInfoList.add(ari); //FIXME: REM - This is dead code.  'ari' is never touched after being initalized to null.  Why?
         }
 
-        return foundProps;
+        return authRefInfoList;
     }
 
     private static void addARIifMatches(
@@ -1087,7 +1097,7 @@ public class RefNameServiceUtils {
             boolean matchBaseOnly,
             AuthRefConfigInfo arci,
             Property prop,
-            List<AuthRefInfo> foundProps) {
+            List<AuthRefInfo> authRefInfoList) {
         // Need to either match a passed refName 
         // OR have no refName to match but be non-empty
         try {
@@ -1100,7 +1110,7 @@ public class RefNameServiceUtils {
                 // Found a match
                 logger.debug("Found a match on property: " + prop.getPath() + " with value: [" + value + "]");
                 AuthRefInfo ari = new AuthRefInfo(arci, prop);
-                foundProps.add(ari);
+                authRefInfoList.add(ari);
             }
         } catch (PropertyException pe) {
             logger.debug("PropertyException on: " + prop.getPath() + pe.getLocalizedMessage());

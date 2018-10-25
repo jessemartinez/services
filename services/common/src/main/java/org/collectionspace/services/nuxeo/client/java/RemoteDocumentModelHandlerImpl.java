@@ -23,8 +23,11 @@
  */
 package org.collectionspace.services.nuxeo.client.java;
 
+import java.net.HttpURLConnection;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -51,6 +54,7 @@ import org.collectionspace.services.client.RelationClient;
 import org.collectionspace.services.client.workflow.WorkflowClient;
 import org.collectionspace.services.common.CSWebApplicationException;
 import org.collectionspace.services.common.NuxeoBasedResource;
+import org.collectionspace.services.common.ServiceException;
 import org.collectionspace.services.common.authorityref.AuthorityRefList;
 import org.collectionspace.services.common.config.ServiceConfigUtils;
 import org.collectionspace.services.common.context.JaxRsContext;
@@ -61,6 +65,7 @@ import org.collectionspace.services.common.document.BadRequestException;
 import org.collectionspace.services.common.document.DocumentException;
 import org.collectionspace.services.common.document.DocumentUtils;
 import org.collectionspace.services.common.document.DocumentWrapper;
+import org.collectionspace.services.common.document.DocumentHandler.Action;
 import org.collectionspace.services.common.document.DocumentFilter;
 import org.collectionspace.services.client.IRelationsManager;
 import org.collectionspace.services.common.relation.RelationResource;
@@ -72,6 +77,7 @@ import org.collectionspace.services.common.api.RefNameUtils;
 import org.collectionspace.services.common.api.Tools;
 import org.collectionspace.services.common.vocabulary.RefNameServiceUtils;
 import org.collectionspace.services.common.vocabulary.RefNameServiceUtils.AuthRefConfigInfo;
+import org.collectionspace.services.common.vocabulary.RefNameServiceUtils.AuthorityItemSpecifier;
 import org.collectionspace.services.config.service.DocHandlerParams;
 import org.collectionspace.services.config.service.ListResultField;
 import org.collectionspace.services.config.service.ObjectPartType;
@@ -83,7 +89,12 @@ import org.collectionspace.services.relation.RelationshipType;
 import org.dom4j.Element;
 import org.nuxeo.ecm.core.api.DocumentModel;
 import org.nuxeo.ecm.core.api.DocumentModelList;
+import org.nuxeo.ecm.core.api.DocumentNotFoundException;
+import org.nuxeo.ecm.core.api.impl.DataModelImpl;
+import org.nuxeo.ecm.core.api.model.DocumentPart;
+import org.nuxeo.ecm.core.api.model.Property;
 import org.nuxeo.ecm.core.api.model.PropertyException;
+import org.nuxeo.ecm.core.api.model.impl.ScalarProperty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -207,6 +218,32 @@ public abstract class   RemoteDocumentModelHandlerImpl<T, TL>
         }
     }
 	
+    @Override
+    public void handleUpdate(DocumentWrapper<DocumentModel> wrapDoc) throws Exception {
+        DocumentModel docModel = wrapDoc.getWrappedObject();
+    	String workflowState = WorkflowClient.WORKFLOWSTATE_LOCKED;
+        
+    	if (docModel.getCurrentLifeCycleState().contains(workflowState) == true) {
+    		throw new ServiceException(HttpURLConnection.HTTP_FORBIDDEN,
+                    "Cannot UPDATE a resource/record if it is in the workflow state: " + workflowState);
+    	} else {
+    		super.handleUpdate(wrapDoc);
+    	}
+    }
+    
+    @Override
+    public boolean handleDelete(DocumentWrapper<DocumentModel> wrapDoc) throws Exception {
+        DocumentModel docModel = wrapDoc.getWrappedObject();
+    	String workflowState = WorkflowClient.WORKFLOWSTATE_LOCKED;
+        
+    	if (docModel.getCurrentLifeCycleState().contains(workflowState) == true) {
+    		throw new ServiceException(HttpURLConnection.HTTP_FORBIDDEN,
+                    "Cannot DELETE a resource/record if it is in the workflow state: " + workflowState);
+    	} else {
+    		return super.handleDelete(wrapDoc);
+    	}
+    }    
+    
     /* NOTE: The authority item doc handler overrides (after calling) this method.  It performs refName updates.  In this
      * method we just update any and all relationship records that use refNames that have changed.
      * (non-Javadoc)
@@ -215,36 +252,21 @@ public abstract class   RemoteDocumentModelHandlerImpl<T, TL>
     @Override
     public void completeUpdate(DocumentWrapper<DocumentModel> wrapDoc) throws Exception {
         DocumentModel docModel = wrapDoc.getWrappedObject();
-        // We need to return at least those document part(s) and corresponding payloads that were received
+        
+        String[] schemas = docModel.getDeclaredSchemas();
         Map<String, ObjectPartType> partsMetaMap = getServiceContext().getPartsMetadata();
-        MultipartServiceContext ctx = (MultipartServiceContext) getServiceContext();
-        PoxPayloadIn input = ctx.getInput();
-        if (input != null) {
-	        List<PayloadInputPart> inputParts = ctx.getInput().getParts();
-	        for (PayloadInputPart part : inputParts) {
-	            String partLabel = part.getLabel();
-                try{
-                    ObjectPartType partMeta = partsMetaMap.get(partLabel);
-                    // CSPACE-4030 - generates NPE if the part is missing.
-                    if(partMeta!=null) {
-	                    Map<String, Object> unQObjectProperties = extractPart(docModel, partLabel, partMeta);
-	                    if(unQObjectProperties!=null) {
-	                    	addOutputPart(unQObjectProperties, partLabel, partMeta);
-	                    }
-                    }
-                } catch (Throwable t){
-                    logger.error("Unable to addOutputPart: " + partLabel
-                                               + " in serviceContextPath: "+this.getServiceContextPath()
-                                               + " with URI: " + this.getServiceContext().getUriInfo().getPath()
-                                               + " error: " + t);
-                }
-	        }
-        } else {
-        	if (logger.isWarnEnabled() == true) {
-        		logger.warn("MultipartInput part was null for document id = " +
-        				docModel.getName());
-        	}
+        for (String schema : schemas) {
+            ObjectPartType partMeta = partsMetaMap.get(schema);
+            if (partMeta == null) {
+                continue; // unknown part, ignore
+            }
+            Map<String, Object> unQObjectProperties = extractPart(docModel, schema, partMeta);
+            if(CollectionSpaceClient.COLLECTIONSPACE_CORE_SCHEMA.equals(schema)) {
+            	addExtraCoreValues(docModel, unQObjectProperties);
+            }
+            addOutputPart(unQObjectProperties, schema, partMeta);
         }
+
         //
         //  If the resource's service supports hierarchy then we need to perform a little more work
         //
@@ -401,6 +423,7 @@ public abstract class   RemoteDocumentModelHandlerImpl<T, TL>
         Map<String, ObjectPartType> partsMetaMap = getServiceContext().getPartsMetadata();
 
         //iterate over parts received and fill those parts
+        boolean werePartsFilled = false;
         List<PayloadInputPart> inputParts = input.getParts();
         for (PayloadInputPart part : inputParts) {
 
@@ -417,6 +440,13 @@ public abstract class   RemoteDocumentModelHandlerImpl<T, TL>
                 continue;
             }
             fillPart(part, docModel, partMeta, action, ctx);
+            werePartsFilled = true;
+        }
+        
+        if (logger.isTraceEnabled() && werePartsFilled == false) {
+        	String msg = String.format("%s request had no XML payload parts processed in the request.  Could be a payload with only relations-common-list request.", 
+        			action.toString());
+        	logger.trace(msg);
         }
     }
 
@@ -438,20 +468,105 @@ public abstract class   RemoteDocumentModelHandlerImpl<T, TL>
      * @param partMeta metadata for the object to fill
      * @throws Exception
      */
-    protected void fillPart(PayloadInputPart part, DocumentModel docModel,
-            ObjectPartType partMeta, Action action, ServiceContext<PoxPayloadIn, PoxPayloadOut> ctx)
-            throws Exception {
-        //check if this is an xml part
-        if (part.getMediaType().equals(MediaType.APPLICATION_XML_TYPE)) {
-        	Element element = part.getElementBody();
-            Map<String, Object> objectProps = DocumentUtils.parseProperties(partMeta, element, ctx);
-                if (action == Action.UPDATE) {
-                    this.filterReadOnlyPropertiesForPart(objectProps, partMeta);
-                }
-                docModel.setProperties(partMeta.getLabel(), objectProps);
-            }
-        }
-
+	protected void fillPart(PayloadInputPart part, DocumentModel docModel, ObjectPartType partMeta, Action action,
+			ServiceContext<PoxPayloadIn, PoxPayloadOut> ctx) throws Exception {
+		// check if this is an xml part
+		if (part.getMediaType().equals(MediaType.APPLICATION_XML_TYPE)) {
+			Element element = part.getElementBody();
+			Map<String, Object> objectProps = DocumentUtils.parseProperties(partMeta, element, ctx);
+			if (action == Action.UPDATE) {
+				this.filterReadOnlyPropertiesForPart(objectProps, partMeta);
+			}
+			String schemaName = partMeta.getLabel();
+			docModel.setProperties(schemaName, objectProps);
+			Set<String> fieldNameSet = getFieldNamesSet(objectProps);
+			setFieldsDirty(docModel, schemaName, fieldNameSet);  // Force Nuxeo to update EVERY field by marking them dirty/modified
+		}
+	}
+	
+	
+	/**
+	 * Due to an apparent Nuxeo bug, we need to explicitly mark all fields as dirty for updates
+	 * to take place properly.  See https://issues.collectionspace.org/browse/CSPACE-7124
+	 * 
+	 * We should improve this code by marking dirty/modified only the fields that were part of the UPDATE/PUT request
+	 * payload.  The current code will mark any field with a name in the 'fieldNameSet' set.  Since field names do not
+	 * have to be unique in document/record, we might end up unnecessarily marking some fields as modified -not ideal but
+	 * better than brute-force marking ALL fields as modified.
+	 * 
+	 * @param docModel
+	 * @param schemaName
+	 */
+	private void setFieldsDirty(DocumentModel docModel, String schemaName, Set<String> fieldNameSet) {
+        DataModelImpl dataModel = (DataModelImpl) docModel.getDataModel(schemaName);
+        DocumentPart documentPart = dataModel.getDocumentPart();
+        setFieldsDirty(documentPart.getChildren(), fieldNameSet);
+    }
+	
+	/**
+	 * Recursively step through all the children and sub-children setting their dirty flags.
+	 * See https://issues.collectionspace.org/browse/CSPACE-7124
+	 * @param children
+	 */
+	private void setFieldsDirty(Collection<Property> children, Set<String> fieldNameSet) {
+		if (children != null && (children.size() > 0)) {
+			for (Property prop : children ) {
+				String propName = prop.getName();
+				logger.debug(propName);
+	            if (prop.isPhantom() == false) {
+	                if (prop.isScalar() == false) {
+	                	setFieldsDirty(prop.getChildren(), fieldNameSet);
+	                } else if (fieldNameSet.contains(propName)) {
+	                	ScalarProperty scalarProp = (ScalarProperty)prop;
+	                	scalarProp.setIsModified();
+	                }
+	            }
+	        }
+		}
+	}
+	
+	/*
+	 * Gets the set of field names used in a map of properties.  We'll use this make our workaround to a
+	 * bug (See https://issues.collectionspace.org/browse/CSPACE-7124) more efficient by only marking fields
+	 * with names in this set as modified -ie, needing persisting.
+	 * 
+	 * Since the map of properties can contain other maps of properties as values, there can be duplicate
+	 * field names in the 'objectProps' map.  And since we're creating a set, there can be no duplicates in the result.
+	 * 
+	 */
+	private Set<String> getFieldNamesSet(Map<String, Object> objectProps) {
+		HashSet<String> result = new HashSet<String>();
+		
+		addFieldNamesToSet(result, objectProps);
+		
+		return result;
+	}
+	
+	private void addFieldNamesToSet(Set<String> fieldNameSet, List<Object> valueList) {
+		for (Object value : valueList) {
+			if (value instanceof List) {
+				addFieldNamesToSet(fieldNameSet, (List<Object>)value);
+			} else if (value instanceof Map) {
+				addFieldNamesToSet(fieldNameSet, (Map<String, Object>)value);
+			} else {
+				logger.debug(value.toString());
+			}
+		}
+	}
+		
+	private void addFieldNamesToSet(Set<String> fieldNameSet, Map<String, Object> objectProps) {
+		for (String key : objectProps.keySet()) {
+			Object value = objectProps.get(key);
+			if (value instanceof Map) {
+				addFieldNamesToSet(fieldNameSet, (Map<String, Object>)value);
+			} else if (value instanceof List) {
+				addFieldNamesToSet(fieldNameSet, (List)value);
+			} else {
+				fieldNameSet.add(key);
+			}
+		}
+	}
+	
     /**
      * Filters out read only properties, so they cannot be set on update.
      * TODO: add configuration support to do this generally
@@ -604,7 +719,7 @@ public abstract class   RemoteDocumentModelHandlerImpl<T, TL>
     @Override
     public AuthorityRefList getAuthorityRefs(
             String csid,
-            List<AuthRefConfigInfo> authRefsInfo) throws PropertyException, Exception {
+            List<AuthRefConfigInfo> authRefConfigInfoList) throws PropertyException, Exception {
 
         AuthorityRefList authRefList = new AuthorityRefList();
         AbstractCommonList commonList = (AbstractCommonList) authRefList;
@@ -623,7 +738,7 @@ public abstract class   RemoteDocumentModelHandlerImpl<T, TL>
         	int nFoundInPage = 0;
         	int nFoundTotal = 0;
         	
-        	ArrayList<RefNameServiceUtils.AuthRefInfo> foundProps 
+        	ArrayList<RefNameServiceUtils.AuthRefInfo> foundReferences 
         		= new ArrayList<RefNameServiceUtils.AuthRefInfo>();
         	
         	boolean releaseRepoSession = false;
@@ -633,14 +748,15 @@ public abstract class   RemoteDocumentModelHandlerImpl<T, TL>
         	if (repoSession == null) {
         		repoSession = repoClient.getRepositorySession(ctx);
         		releaseRepoSession = true;
+        		this.setRepositorySession(repoSession); // we (the doc handler) should keep track of this repository session in case we need it
         	}
         	
         	try {
         		DocumentModel docModel = repoClient.getDoc(repoSession, ctx, csid).getWrappedObject();
-	           	RefNameServiceUtils.findAuthRefPropertiesInDoc(docModel, authRefsInfo, null, foundProps);
+	           	RefNameServiceUtils.findAuthRefPropertiesInDoc(docModel, authRefConfigInfoList, null, foundReferences);
 	           	// Slightly goofy pagination support - how many refs do we expect from one object?
-	           	for(RefNameServiceUtils.AuthRefInfo ari:foundProps) {
-	       			if((nFoundTotal >= iFirstToUse) && (nFoundInPage < pageSize)) {
+	           	for(RefNameServiceUtils.AuthRefInfo ari:foundReferences) {
+	       			if ((nFoundTotal >= iFirstToUse) && (nFoundInPage < pageSize)) {
 	       				if(appendToAuthRefsList(ari, list)) {
 	           				nFoundInPage++;
 	               			nFoundTotal++;
@@ -691,25 +807,62 @@ public abstract class   RemoteDocumentModelHandlerImpl<T, TL>
 	   			return true;
 	   		}
     	} catch(PropertyException pe) {
-			logger.debug("PropertyException on: "+ari.getProperty().getPath()+pe.getLocalizedMessage());
+    		String msg = "PropertyException on: "+ari.getProperty().getPath()+pe.getLocalizedMessage();
+    		if (logger.isDebugEnabled()) {
+    			logger.debug(msg, pe);
+    		} else {
+    			logger.error(msg);
+    		}
     	}
     	return false;
     }
 
+    /**
+     * Fill in all the values to be returned in the authrefs payload for this item.
+     * 
+     * @param authRefFieldName
+     * @param refName
+     * @return
+     */
     private AuthorityRefList.AuthorityRefItem authorityRefListItem(String authRefFieldName, String refName) {
-
+    	//
+    	// Find the CSID for the authority item
+    	//
+    	String csid = null;
+    	try {
+			DocumentModel docModel = NuxeoUtils.getDocModelForRefName(getServiceContext(), refName, getServiceContext().getResourceMap());
+			csid = NuxeoUtils.getCsid(docModel);
+		} catch (Exception e1) {
+			String msg = String.format("Could not find CSID for authority reference with refname = %s.", refName);
+			if (logger.isDebugEnabled()) {
+				logger.debug(msg, e1);
+			} else {
+				logger.error(msg);
+			}
+		}
+    	
         AuthorityRefList.AuthorityRefItem ilistItem = new AuthorityRefList.AuthorityRefItem();
         try {
             RefNameUtils.AuthorityTermInfo termInfo = RefNameUtils.parseAuthorityTermInfo(refName);
+            if (Tools.isEmpty(csid) == false) {
+            	ilistItem.setCsid(csid);
+            }
             ilistItem.setRefName(refName);
             ilistItem.setAuthDisplayName(termInfo.inAuthority.displayName);
             ilistItem.setItemDisplayName(termInfo.displayName);
             ilistItem.setSourceField(authRefFieldName);
             ilistItem.setUri(termInfo.getRelativeUri());
         } catch (Exception e) {
-        	logger.error("Trouble parsing refName from value: "+refName+" in field: "+authRefFieldName+e.getLocalizedMessage());
         	ilistItem = null;
+        	String msg = String.format("Trouble parsing refName from value: %s in field: %s. Error message: %s.",
+        			refName, authRefFieldName, e.getLocalizedMessage());
+        	if (logger.isDebugEnabled()) {
+        		logger.debug(msg, e);
+        	} else {
+        		logger.error(msg);
+        	}
         }
+        
         return ilistItem;
     }
 
@@ -1279,7 +1432,7 @@ public abstract class   RemoteDocumentModelHandlerImpl<T, TL>
                             	logger.trace("Fetching CSID for child with only refname: "+newChildRefName);
                             }
                         	DocumentModel newChildDocModel = 
-                        		NuxeoBasedResource.getDocModelForRefName(this.getRepositorySession(), 
+                        		NuxeoBasedResource.getDocModelForRefName(getServiceContext(), 
                         				newChildRefName, getServiceContext().getResourceMap());
                         	newChildCsid = getCsid(newChildDocModel);
             			}

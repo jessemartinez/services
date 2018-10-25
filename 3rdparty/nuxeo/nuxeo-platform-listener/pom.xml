@@ -4,7 +4,7 @@
     <parent>
         <groupId>org.collectionspace.services</groupId>
         <artifactId>org.collectionspace.services.3rdparty.nuxeo</artifactId>
-        <version>4.4-SNAPSHOT</version>
+        <version>4.5</version>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
@@ -16,6 +16,8 @@
         <module>updateobjectlocationonmove</module>
         <module>updaterelationsondelete</module>
         <module>updateimagederivatives</module>
+        <module>naturalhistory</module>
+        <module>botgarden</module>
     </modules>
 
     <dependencies>

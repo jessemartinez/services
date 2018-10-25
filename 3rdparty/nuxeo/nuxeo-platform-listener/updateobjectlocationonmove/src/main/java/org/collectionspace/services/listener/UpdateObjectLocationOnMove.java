@@ -16,6 +16,7 @@ public class UpdateObjectLocationOnMove extends AbstractUpdateObjectLocationValu
 
     @Override
     protected boolean updateCollectionObjectLocation(DocumentModel collectionObjectDocModel,
+    		DocumentModel movementDocModel,
     		String movementRecordsLocation) throws ClientException {
     	boolean result = false;
 

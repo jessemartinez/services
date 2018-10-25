@@ -30,6 +30,7 @@ import java.util.Map;
 import java.util.Properties;
 
 import javax.ws.rs.core.MultivaluedMap;
+import javax.ws.rs.core.Request;
 import javax.ws.rs.core.UriInfo;
 
 import org.collectionspace.authentication.spi.AuthNContext;
@@ -108,6 +109,8 @@ public abstract class AbstractServiceContextImpl<IT, OT>
     private SecurityContext securityContext;
     /** The sessions JAX-RS URI information */
     private UriInfo uriInfo;
+    /** The JAX-RS request information */
+    private Request requestInfo;
     /** The current repository session */
     private Object currentRepositorySession;
     /** A reference count for the current repository session */
@@ -183,13 +186,18 @@ public abstract class AbstractServiceContextImpl<IT, OT>
 		MultivaluedMap<String, String> queryParams = (ui == null) ? null : ui.getQueryParameters();
 		if (queryParams != null) {
 			String timeoutString = queryParams.getFirst(IClientQueryParams.IMPORT_TIMEOUT_PARAM);
-			if (timeoutString != null)
-				try {
+			if (timeoutString == null) {
+				timeoutString = queryParams.getFirst(IClientQueryParams.IMPORT_TIMOUT_PARAM);
+			}
+			
+			if (timeoutString != null) {
+				try {					
 					result = Integer.parseInt(timeoutString);
 				} catch (NumberFormatException e) {
 					logger.warn("Transaction timeout period parameter could not be parsed.  The characters in the parameter string must all be decimal digits.  The Import service will use the default timeout period instead.",
 							e);
 				}
+			}
 		}
 
 		return result;
@@ -802,6 +810,9 @@ public abstract class AbstractServiceContextImpl<IT, OT>
 
     /* (non-Javadoc)
      * @see org.collectionspace.services.common.context.ServiceContext#getQueryParams()
+     * 
+     * When we first created these services, the RESTEasy query parameters used to be a modifiable map.  That changed in a
+     * more recent version of RESTEasy, so we need to make a copy of the params into a modifiable map and return it instead.
      */
     @Override
     public MultivaluedMap<String, String> getQueryParams() {
@@ -838,6 +849,16 @@ public abstract class AbstractServiceContextImpl<IT, OT>
 	@Override
 	public UriInfo getUriInfo() {
 		return this.uriInfo;
+	}
+	
+	@Override
+	public Request getRequestInfo() {
+		return this.requestInfo;
+	}
+	
+	@Override
+	public void setRequestInfo(Request requestInfo) {
+		this.requestInfo = requestInfo;
 	}
 	
 	/*

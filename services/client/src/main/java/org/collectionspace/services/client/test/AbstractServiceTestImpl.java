@@ -40,6 +40,7 @@ import org.slf4j.LoggerFactory;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 /**
@@ -100,6 +101,7 @@ public abstract class AbstractServiceTestImpl<CLT, CPT, REQUEST_TYPE, RESPONSE_T
     /*
      * We use this method to force a TestNG execution order for our tests
      */
+	@Override
 	public abstract void CRUDTests(String testName);
     
     /*
@@ -657,7 +659,8 @@ public abstract class AbstractServiceTestImpl<CLT, CPT, REQUEST_TYPE, RESPONSE_T
     /*
      * Test that searches honor the workflow deleted state.
      */
-    @Test(dataProvider = "testName")
+    @Override
+	@Test(dataProvider = "testName")
     public void searchWorkflowDeleted(String testName) throws Exception {
 
         // FIXME: Temporarily avoid running test if client is of an authority service
@@ -742,30 +745,6 @@ public abstract class AbstractServiceTestImpl<CLT, CPT, REQUEST_TYPE, RESPONSE_T
             result = false;
         }
         return result;
-    }
-
-    /* (non-Javadoc)
-     * @see org.collectionspace.services.client.test.ServiceTest#createWithEmptyEntityBody(java.lang.String)
-     */
-    @Override
-    public void createWithEmptyEntityBody(String testName) throws Exception {
-        //FIXME: Should this test really be empty?  If so, please comment accordingly.
-    }
-
-    /* (non-Javadoc)
-     * @see org.collectionspace.services.client.test.AbstractServiceTestImpl#createWithMalformedXml(java.lang.String)
-     */
-    @Override
-    public void createWithMalformedXml(String testName) throws Exception {
-        //FIXME: Should this test really be empty?  If so, please comment accordingly.
-    }
-
-    /* (non-Javadoc)
-     * @see org.collectionspace.services.client.test.AbstractServiceTestImpl#createWithWrongXmlSchema(java.lang.String)
-     */
-    @Override
-    public void createWithWrongXmlSchema(String testName) throws Exception {
-        //FIXME: Should this test really be empty?  If so, please comment accordingly.
     }
 
     /* (non-Javadoc)
@@ -1257,6 +1236,120 @@ public abstract class AbstractServiceTestImpl<CLT, CPT, REQUEST_TYPE, RESPONSE_T
         Assert.assertEquals(updatedWorkflowCommons.getCurrentLifeCycleState(), expectedLifeCycleState);
         return updatedWorkflowCommons.getCurrentLifeCycleState();
     }
+    
+    //
+    // Generic tests applicable to all services.
+    //
+    
+    @Override
+    @Test(dataProvider="testName", dataProviderClass=AbstractPoxServiceTestImpl.class, dependsOnMethods = {"create", "testSubmitRequest"})
+	public void createWithEmptyEntityBody(String testName) throws Exception {
+		// Perform setup.
+		setupCreateWithEmptyEntityBody();
+
+		// Submit the request to the service and store the response.
+		String method = testRequestType.httpMethodName();
+		String url = getServiceRootURL();
+		String mediaType = MediaType.APPLICATION_XML;
+		final String entity = "";
+		int statusCode = submitRequest(method, url, mediaType, entity);
+
+		// Check the status code of the response: does it match
+		// the expected response(s)?
+		if (logger.isDebugEnabled()) {
+			logger.debug("createWithEmptyEntityBody url=" + url + " status=" + statusCode);
+		}
+		Assert.assertTrue(testRequestType.isValidStatusCode(statusCode),
+				invalidStatusCodeMessage(testRequestType, statusCode));
+		Assert.assertEquals(statusCode, testExpectedStatusCode);
+	}
+    
+    @Override
+    @Test(dataProvider="testName", dataProviderClass=AbstractPoxServiceTestImpl.class, dependsOnMethods = {"create", "testSubmitRequest"})
+    public void createWithMalformedXml(String testName) throws Exception {
+	    // Perform setup.
+	    setupCreateWithMalformedXml();
+	    
+	    // Submit the request to the service and store the response.
+	    String method = testRequestType.httpMethodName();
+	    String url = getServiceRootURL();
+	    String mediaType = MediaType.APPLICATION_XML;
+	    final String entity = MALFORMED_XML_DATA; // Constant from base class.
+	    int statusCode = submitRequest(method, url, mediaType, entity);
+	    
+	    // Check the status code of the response: does it match
+	    // the expected response(s)?
+	    if (logger.isDebugEnabled()) {
+	    	logger.debug(testName + ": url=" + url + " status=" + statusCode);
+	    }
+	    Assert.assertTrue(testRequestType.isValidStatusCode(statusCode),
+	    invalidStatusCodeMessage(testRequestType, statusCode));
+	    Assert.assertEquals(statusCode, testExpectedStatusCode);
+    }
+    
+    @Override
+    @Test(dataProvider="testName", dataProviderClass=AbstractPoxServiceTestImpl.class, dependsOnMethods = {"create", "testSubmitRequest"})
+    public void createWithWrongXmlSchema(String testName) throws Exception {
+	    // Perform setup.
+	    setupCreateWithWrongXmlSchema();
+	    
+	    // Submit the request to the service and store the response.
+	    String method = testRequestType.httpMethodName();
+	    String url = getServiceRootURL();
+	    String mediaType = MediaType.APPLICATION_XML;
+	    final String entity = WRONG_XML_SCHEMA_DATA;
+	    int statusCode = submitRequest(method, url, mediaType, entity);
+	    
+	    // Check the status code of the response: does it match
+	    // the expected response(s)?
+	    if(logger.isDebugEnabled()){
+	    	logger.debug(testName + ": url=" + url + " status=" + statusCode);
+	    }
+	    Assert.assertTrue(testRequestType.isValidStatusCode(statusCode),
+	    invalidStatusCodeMessage(testRequestType, statusCode));
+	    Assert.assertEquals(statusCode, testExpectedStatusCode);
+    }
+    
+    /**
+     * Sets up create tests with empty entity body.
+     */
+    @Override
+	protected void setupCreateWithEmptyEntityBody() {
+        testExpectedStatusCode = STATUS_INTERNAL_SERVER_ERROR;
+        testRequestType = ServiceRequestType.CREATE;
+        testSetup(testExpectedStatusCode, testRequestType);
+    }
+
+    /**
+     * Sets up create tests with empty entity body.
+     */
+    @Override
+	protected void setupCreateWithInvalidBody() {
+        testExpectedStatusCode = STATUS_INTERNAL_SERVER_ERROR;
+        testRequestType = ServiceRequestType.CREATE;
+        testSetup(testExpectedStatusCode, testRequestType);
+    }
+    
+    /**
+     * Sets up create tests with malformed xml.
+     */
+    @Override
+	protected void setupCreateWithMalformedXml() {
+        testExpectedStatusCode = STATUS_INTERNAL_SERVER_ERROR;
+        testRequestType = ServiceRequestType.CREATE;
+        testSetup(testExpectedStatusCode, testRequestType);
+    }
+
+    /**
+     * Sets up create tests with wrong xml schema.
+     */
+    @Override
+	protected void setupCreateWithWrongXmlSchema() {
+        testExpectedStatusCode = STATUS_INTERNAL_SERVER_ERROR;
+        testRequestType = ServiceRequestType.CREATE;
+        testSetup(testExpectedStatusCode, testRequestType);
+    }
+    
 }
 
 

@@ -25,8 +25,6 @@ package org.collectionspace.services.jaxrs;
 import org.collectionspace.services.account.AccountResource;
 import org.collectionspace.services.account.TenantResource;
 import org.collectionspace.services.blob.BlobResource;
-import org.collectionspace.services.client.PoxPayloadIn;
-import org.collectionspace.services.client.PoxPayloadOut;
 import org.collectionspace.services.collectionobject.CollectionObjectResource;
 import org.collectionspace.services.id.IDResource;
 import org.collectionspace.services.media.MediaResource;
@@ -45,6 +43,8 @@ import org.collectionspace.services.material.MaterialAuthorityResource;
 import org.collectionspace.services.concept.ConceptAuthorityResource;
 import org.collectionspace.services.taxonomy.TaxonomyAuthorityResource;
 import org.collectionspace.services.movement.MovementResource;
+import org.collectionspace.services.propagation.PropagationResource;
+import org.collectionspace.services.pottag.PottagResource;
 import org.collectionspace.services.report.ReportResource;
 import org.collectionspace.services.acquisition.AcquisitionResource;
 import org.collectionspace.services.dimension.DimensionResource;
@@ -54,6 +54,7 @@ import org.collectionspace.services.vocabulary.VocabularyResource;
 import org.collectionspace.services.organization.OrgAuthorityResource;
 import org.collectionspace.services.person.PersonAuthorityResource;
 import org.collectionspace.services.citation.CitationAuthorityResource;
+import org.collectionspace.services.claim.ClaimResource;
 import org.collectionspace.services.exhibition.ExhibitionResource;
 import org.collectionspace.services.conditioncheck.ConditioncheckResource;
 import org.collectionspace.services.conservation.ConservationResource;
@@ -90,7 +91,7 @@ public class CollectionSpaceJaxRsApplication extends Application
 
     private Set<Object> singletons = new HashSet<Object>();
     private Set<Class<?>> empty = new HashSet<Class<?>>();    
-    private ResourceMap<PoxPayloadIn, PoxPayloadOut> resourceMap = new ResourceMapImpl();
+    private ResourceMap resourceMap = new ResourceMapImpl();
     private ServletContext servletContext = null;
 
     public CollectionSpaceJaxRsApplication() {    	
@@ -134,6 +135,9 @@ public class CollectionSpaceJaxRsApplication extends Application
         addResourceToMapAndSingletons(new MediaResource());
         addResourceToMapAndSingletons(new BlobResource());
         addResourceToMapAndSingletons(new MovementResource());
+        addResourceToMapAndSingletons(new PropagationResource());
+        addResourceToMapAndSingletons(new PottagResource());
+        addResourceToMapAndSingletons(new ClaimResource());
         addResourceToMapAndSingletons(new ReportResource());
         addResourceToMapAndSingletons(new PublicItemResource());
 

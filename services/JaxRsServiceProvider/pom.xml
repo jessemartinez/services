@@ -4,7 +4,7 @@
     <parent>
         <artifactId>org.collectionspace.services.main</artifactId>
         <groupId>org.collectionspace.services</groupId>
-        <version>4.4-SNAPSHOT</version>
+        <version>4.5</version>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
@@ -162,6 +162,10 @@
 					<artifactId>jsp-2.1</artifactId>
 					<groupId>org.mortbay.jetty</groupId>
 				</exclusion>
+				<exclusion>
+					<artifactId>jaxb-impl</artifactId>
+					<groupId>com.sun.xml.bind</groupId>
+				</exclusion>
 			</exclusions>
 		</dependency>        
         <dependency>
@@ -217,6 +221,11 @@
         <dependency>
             <groupId>org.collectionspace.services</groupId>
             <artifactId>org.collectionspace.services.loanout.service</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.collectionspace.services</groupId>
+            <artifactId>org.collectionspace.services.claim.service</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
@@ -296,6 +305,16 @@
         </dependency>
         <dependency>
             <groupId>org.collectionspace.services</groupId>
+            <artifactId>org.collectionspace.services.propagation.service</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.collectionspace.services</groupId>
+            <artifactId>org.collectionspace.services.pottag.service</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.collectionspace.services</groupId>
             <artifactId>org.collectionspace.services.report.service</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -365,15 +384,17 @@
         </dependency>
         <dependency>
             <groupId>org.jboss.resteasy</groupId>
-            <artifactId>jaxrs-api</artifactId>
-        </dependency>        
-        <dependency>
-            <groupId>org.jboss.resteasy</groupId>
             <artifactId>resteasy-jaxrs</artifactId>
         </dependency>
         <dependency>
             <groupId>org.jboss.resteasy</groupId>
             <artifactId>resteasy-jaxb-provider</artifactId>
+            <exclusions>
+            	<exclusion>
+            		<artifactId>jaxb-impl</artifactId>
+            		<groupId>com.sun.xml.bind</groupId>
+            	</exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.jboss.resteasy</groupId>
@@ -521,17 +542,14 @@
         <dependency>
             <groupId>org.nuxeo.common</groupId>
             <artifactId>nuxeo-common</artifactId>
-            <version>${nuxeo.core.version}</version>
         </dependency>
         <dependency>
             <groupId>org.nuxeo.runtime</groupId>
             <artifactId>nuxeo-runtime</artifactId>
-			<version>${nuxeo.core.version}</version>            
         </dependency>
         <dependency>
             <groupId>org.nuxeo.ecm.core</groupId>
             <artifactId>nuxeo-core</artifactId>
-			<version>${nuxeo.core.version}</version>
 			<exclusions>
                 <exclusion>
                     <groupId>xerces</groupId>
@@ -546,7 +564,6 @@
         <dependency>
             <groupId>org.nuxeo.ecm.core</groupId>
             <artifactId>nuxeo-core-convert</artifactId>
-			<version>${nuxeo.core.version}</version>            
         </dependency>
         <dependency>
             <groupId>org.nuxeo.lib.core</groupId>
@@ -556,34 +573,25 @@
         <dependency>
             <groupId>org.nuxeo.ecm.core</groupId>
             <artifactId>nuxeo-core-storage-sql-ra</artifactId>
-			<version>${nuxeo.core.version}</version>            
         </dependency>
         <dependency>
             <groupId>org.nuxeo.ecm.core</groupId>
             <artifactId>nuxeo-core-query</artifactId>
-						<version>${nuxeo.core.version}</version>            
+			<version>${nuxeo.core.version}</version>            
         </dependency>
         <dependency>
             <groupId>org.nuxeo.ecm.core</groupId>
             <artifactId>nuxeo-core-schema</artifactId>
-						<version>${nuxeo.core.version}</version>            
         </dependency>
+        <!--
         <dependency>
             <groupId>org.nuxeo.ecm.core</groupId>
             <artifactId>nuxeo-core-io</artifactId>
-			<version>${nuxeo.core.version}</version>            
         </dependency>
-<!--         
-        <dependency>
-		  <groupId>org.nuxeo.runtime</groupId>
-		  <artifactId>nuxeo-runtime-scripting</artifactId>
-		  <version>${nuxeo.core.version}</version>		  
-        </dependency>
- -->        
+         -->
         <dependency>
 			<groupId>org.nuxeo.runtime</groupId>
 			<artifactId>nuxeo-runtime-jtajca</artifactId>
-			<version>${nuxeo.core.version}</version>  
 			<!-- Until issue http://issues.collectionspace.org/browse/CSPACE-4639 is resolved, we
 				<version>5.5-NXP-8140</version>
 				need to use this patched Nuxeo artifact that is only available on our public Maven
@@ -607,7 +615,6 @@
         <dependency>
 			<groupId>org.nuxeo.runtime</groupId>
 			<artifactId>nuxeo-runtime-datasource</artifactId>
-			<version>${nuxeo.core.version}</version>
         </dependency>
         <dependency>
 			<groupId>org.nuxeo.ecm.platform</groupId>
@@ -637,103 +644,26 @@
         </dependency>
         <dependency>
 			<groupId>org.nuxeo.ecm.platform</groupId>
-			<artifactId>nuxeo-platform-imaging-preview</artifactId>
+			<artifactId>nuxeo-platform-audit-api</artifactId>
 			<version>${nuxeo.core.version}</version>
 			<exclusions>
 				<exclusion>
-					<artifactId>jboss-seam-pdf</artifactId>
-					<groupId>org.jboss.seam</groupId>
-				</exclusion>
-				<exclusion>
-					<artifactId>jboss-seam-rss</artifactId>
-					<groupId>org.jboss.seam</groupId>
-				</exclusion>
-				<exclusion>
-					<artifactId>jboss-seam-excel</artifactId>
-					<groupId>org.jboss.seam</groupId>
-				</exclusion>
-				<exclusion>
-					<artifactId>nuxeo-platform-ui-web</artifactId>
-					<groupId>org.nuxeo.ecm.platform</groupId>
-				</exclusion>
-				<exclusion>
-					<artifactId>xercesImpl</artifactId>
-					<groupId>xerces</groupId>
-				</exclusion>
-				<exclusion>
-					<artifactId>servlet-api</artifactId>
-					<groupId>javax.servlet</groupId>
-				</exclusion>
-				<exclusion>
-					<artifactId>oauth-httpclient3</artifactId>
-					<groupId>net.oauth.core</groupId>
-				</exclusion>
-				<exclusion>
-					<artifactId>oauth-consumer</artifactId>
-					<groupId>net.oauth.core</groupId>
-				</exclusion>
-				<exclusion>
-					<artifactId>oauth-provider</artifactId>
-					<groupId>net.oauth.core</groupId>
-				</exclusion>
-				<exclusion>
-					<artifactId>oauth</artifactId>
-					<groupId>net.oauth.core</groupId>
-				</exclusion>
-				<exclusion>
-					<artifactId>jboss-seam-remoting</artifactId>
-					<groupId>org.jboss.seam</groupId>
-				</exclusion>
-				<exclusion>
-					<artifactId>jboss-seam-ui</artifactId>
-					<groupId>org.jboss.seam</groupId>
-				</exclusion>
-				<exclusion>
-					<artifactId>jboss-seam</artifactId>
-					<groupId>org.jboss.seam</groupId>
-				</exclusion>
-				<exclusion>
-					<artifactId>richfaces</artifactId>
-					<groupId>org.richfaces</groupId>
-				</exclusion>
-				<exclusion>
-					<artifactId>richfaces-a4j</artifactId>
-					<groupId>org.richfaces</groupId>
-				</exclusion>
-				<exclusion>
-					<artifactId>richfaces-core</artifactId>
-					<groupId>org.richfaces</groupId>
-				</exclusion>
-				<exclusion>
-					<artifactId>jsf-api</artifactId>
-					<groupId>com.sun.faces</groupId>
-				</exclusion>
-				<exclusion>
-					<artifactId>jsf-impl</artifactId>
-					<groupId>com.sun.faces</groupId>
-				</exclusion>
-				<exclusion>
-					<artifactId>el-api</artifactId>
-					<groupId>javax.el</groupId>
+					<artifactId>jersey-client</artifactId>
+					<groupId>com.sun.jersey</groupId>
 				</exclusion>
 			</exclusions>
-        </dependency>
-        <dependency>
-			<groupId>org.nuxeo.ecm.platform</groupId>
-			<artifactId>nuxeo-platform-audit-api</artifactId>
-			<version>${nuxeo.core.version}</version>
         </dependency>
         <dependency>
             <groupId>org.nuxeo.runtime</groupId>
             <artifactId>nuxeo-runtime-osgi</artifactId>
 			<version>${nuxeo.core.version}</version>            
         </dependency>
+		
         <dependency>
             <groupId>org.osgi</groupId>
             <artifactId>org.osgi.core</artifactId>
             <version>4.1.0</version>
         </dependency>
-
          <dependency>
             <groupId>org.testng</groupId>
             <artifactId>testng</artifactId>
@@ -764,11 +694,13 @@
 		  <artifactId>qdox</artifactId>
 		  <version>1.6.1</version>
 		</dependency>
+		<!-- 
         <dependency>
 		  <groupId>apache-xerces</groupId>
 		  <artifactId>xml-apis</artifactId>
 		  <version>2.9.1</version>
         </dependency>
+        -->
         <dependency>
 		  <groupId>org.apache</groupId>
 		  <artifactId>xmlsec</artifactId>

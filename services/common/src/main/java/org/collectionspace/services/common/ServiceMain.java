@@ -16,6 +16,7 @@ import javax.naming.NamingException;
 import javax.servlet.ServletContext;
 import javax.sql.DataSource;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.tomcat.dbcp.dbcp.BasicDataSource;
 import org.collectionspace.authentication.AuthN;
 import org.collectionspace.services.client.XmlTools;
@@ -36,14 +37,16 @@ import org.collectionspace.services.common.storage.JDBCTools;
 import org.collectionspace.services.config.ClientType;
 import org.collectionspace.services.config.ServiceConfig;
 import org.collectionspace.services.config.service.ServiceBindingType;
+import org.collectionspace.services.config.tenant.EventListenerConfig;
+import org.collectionspace.services.config.tenant.EventListenerConfigurations;
 import org.collectionspace.services.config.tenant.RepositoryDomainType;
 import org.collectionspace.services.config.tenant.TenantBindingType;
 import org.collectionspace.services.config.types.PropertyItemType;
 import org.collectionspace.services.config.types.PropertyType;
 import org.collectionspace.services.nuxeo.client.java.NuxeoConnectorEmbedded;
 import org.collectionspace.services.nuxeo.client.java.TenantRepository;
-
-import org.apache.commons.io.FileUtils;
+import org.collectionspace.services.nuxeo.listener.CSEventListener;
+import org.collectionspace.services.nuxeo.listener.AbstractCSEventListenerImpl;
 import org.jboss.resteasy.spi.ResteasyProviderFactory;
 import org.dom4j.Document;
 import org.slf4j.Logger;
@@ -57,7 +60,8 @@ import org.slf4j.LoggerFactory;
 public class ServiceMain {
 
     final static Logger logger = LoggerFactory.getLogger(ServiceMain.class);
-    
+	private static final int PRIMARY_REPOSITORY_DOMAIN = 0;
+
     /**
      * For some reason, we have trouble getting logging from this class directed to
      * the tomcat/catalina console log file.  So we do it explicitly with this method.
@@ -186,7 +190,7 @@ public class ServiceMain {
         String[] dataSourceNames = {JDBCTools.NUXEO_DATASOURCE_NAME, JDBCTools.NUXEO_READER_DATASOURCE_NAME};
         updateInitializationScript(getNuxeoDatabasesInitScriptFilename(),
                 dbsCheckedOrCreated, dataSourceNames);
-
+        
         //
         // Start up and initialize our embedded Nuxeo instance.
         //
@@ -204,6 +208,11 @@ public class ServiceMain {
         	//
         	throw new RuntimeException("Unknown CollectionSpace services client type: " + getClientType());
         }
+        
+        //
+        //
+        //
+        initializeEventListeners();        
                 
         //
         // Create all the default user accounts and permissions.  Since some of our "cspace" database config files
@@ -233,8 +242,93 @@ public class ServiceMain {
         */
 		showTenantStatus();
     }
+        
+    /**
+     * Returns the primary repository name for a tenant -there's usually just one.
+     * @param tenantBinding
+     * @return
+     * @throws InstantiationException
+     */
     
-    private void showTenantStatus() {
+	protected String getPrimaryRepositoryName(TenantBindingType tenantBinding) throws InstantiationException {
+    	String result = "default";
+    	
+    	List<RepositoryDomainType> repositoryDomainList = tenantBinding.getRepositoryDomain();
+    	if (repositoryDomainList != null && repositoryDomainList.isEmpty() == false) {
+    		String repositoryName = repositoryDomainList.get(PRIMARY_REPOSITORY_DOMAIN).getRepositoryName();
+    		if (repositoryName != null && !repositoryName.isEmpty()) {
+    			result = repositoryName;
+    		}
+    	} else {
+    		String msg = String.format("Tenant bindings for '%s' is missing a repositoryDomain element in its bindings file.",
+    				tenantBinding.getName());
+    		logger.error(msg);
+    		throw new InstantiationException(msg);
+    	}
+    	
+    	return result;
+    }
+    
+    /**
+     * Initialize the event listeners.  We're essentially registering listeners with tenants.  This ensures that listeners ignore events
+     * caused by other tenants.
+     */
+    private void initializeEventListeners() {
+    	Hashtable<String, TenantBindingType> tenantBindings = this.tenantBindingConfigReader.getTenantBindings();
+    	
+        for (TenantBindingType tenantBinding : tenantBindings.values()) {
+        	EventListenerConfigurations eventListenerConfigurations = tenantBinding.getEventListenerConfigurations();
+        	if (eventListenerConfigurations != null) {
+        		List<EventListenerConfig> eventListenerConfigList = eventListenerConfigurations.getEventListenerConfig();
+                ClassLoader tccl = Thread.currentThread().getContextClassLoader();
+        		for (EventListenerConfig eventListenerConfig : eventListenerConfigList) {
+        			String clazz = eventListenerConfig.getClassName().trim();
+        			if (clazz.isEmpty() == false) {
+	                    try {
+	        	            Class<?> c = tccl.loadClass(clazz);
+	        	            if (CSEventListener.class.isAssignableFrom(c)) {
+	        	            	CSEventListener listener = (AbstractCSEventListenerImpl) c.newInstance();
+	        	            	listener.register(getPrimaryRepositoryName(tenantBinding), eventListenerConfig);  // Register the listener with a tenant using its repository name
+	        	            	if (logger.isInfoEnabled()) {
+	        	            		String msg = String.format("Event Listener - Success: Tenant '%30s'\tActivated listener %s:%s",
+	        	            				tenantBinding.getName(), eventListenerConfig.getId(), clazz);
+	        	            		logger.info(msg);
+	        	            	}
+	        	            }
+	                    } catch (ClassNotFoundException e) {
+	                    	String msg = String.format("Event Listener - FAILURE: Tenant '%30s'\tFailed to find event listener %s:%s",
+	                    			tenantBinding.getName(), eventListenerConfig.getId(), clazz);
+	                    	logger.warn(msg);
+	                    	logger.trace(msg, e);
+	                    	failIfRequired(eventListenerConfig);
+	                    } catch (InstantiationException e) {
+	                    	String msg = String.format("Event Listener - FAILURE: Tenant '%30s'\tFailed to instantiate event listener %s:%s",
+	                    			tenantBinding.getName(), eventListenerConfig.getId(), clazz);
+	                    	logger.warn(msg);
+	                    	logger.trace(msg, e);
+	                    	failIfRequired(eventListenerConfig);
+						} catch (IllegalAccessException e) {
+	                    	String msg = String.format("Event Listener - FAILURE: Tenant '%30s'\tIllegal access to event listener %s:%s",
+	                    			tenantBinding.getName(), eventListenerConfig.getId(), clazz);
+	                    	logger.warn(msg);
+	                    	logger.trace(msg, e);
+	                    	failIfRequired(eventListenerConfig);
+						}
+        			}
+        		}
+        	}
+        	logger.info("\n");
+        }
+	}
+
+	private void failIfRequired(EventListenerConfig eventListenerConfig) {
+		if (eventListenerConfig.isRequired() == true) {
+			throw new RuntimeException(String.format("Required event listener '%s' missing or could not be instantiated.", eventListenerConfig.getId()));
+		}
+		
+	}
+
+	private void showTenantStatus() {
     	Hashtable<String,TenantBindingType> tenantBindingsList = tenantBindingConfigReader.getTenantBindings(true);
     	mirrorToStdOut("++++++++++++++++ Summary - CollectionSpace tenant status. ++++++++++++++++++++++++");
     	String headerTemplate = "%10s %10s %30s %60s %10s";
@@ -822,10 +916,10 @@ public class ServiceMain {
      */
     private synchronized void populateUriTemplateRegistry() {
        if (uriTemplateRegistry.isEmpty()) {
-    	   CollectionSpaceResource resource = null;
+    	   CollectionSpaceResource<?, ?> resource = null;
             ResourceMap resourceMap = getJaxRSResourceMap();
-            Set<Map.Entry<String, CollectionSpaceResource>> entrySet = resourceMap.entrySet();
-            for (Map.Entry<String, CollectionSpaceResource> entry : entrySet) {
+            Set<Map.Entry<String, CollectionSpaceResource<?, ?>>> entrySet = resourceMap.entrySet();
+            for (Map.Entry<String, CollectionSpaceResource<?, ?>> entry : entrySet) {
                 resource = entry.getValue();
                 Map<UriTemplateRegistryKey, StoredValuesUriTemplate> entries =
                         resource.getUriRegistryEntries();
@@ -1091,18 +1185,22 @@ public class ServiceMain {
         repoConfigDoc = XmlTools.setAttributeValue(repoConfigDoc, "/component", "name",
                 String.format("config:%s-repository", repositoryName));
         
+        repoConfigDoc = XmlTools.setAttributeValue(repoConfigDoc,
+        		ConfigUtils.CONFIGURATION_EXTENSION_POINT_XPATH + "/blobprovider", "name",
+                repositoryName);
+        
+        repoConfigDoc = XmlTools.setElementValue(repoConfigDoc,
+        		ConfigUtils.CONFIGURATION_EXTENSION_POINT_XPATH + "/blobprovider/property[@name='path']",
+        			Tools.isBlank(binaryStorePath) ? repositoryName : binaryStorePath);
+        
         // Text substitutions within first extension point, "repository"
         repoConfigDoc = XmlTools.setAttributeValue(repoConfigDoc,
         		ConfigUtils.REPOSITORY_EXTENSION_POINT_XPATH + "/repository", "name",
                 repositoryName);
         
-        repoConfigDoc = XmlTools.setAttributeValue(repoConfigDoc,
-        		ConfigUtils.REPOSITORY_EXTENSION_POINT_XPATH + "/repository", "name",
-                repositoryName);
-        
-        repoConfigDoc = XmlTools.setAttributeValue(repoConfigDoc,
-        		ConfigUtils.REPOSITORY_EXTENSION_POINT_XPATH + "/repository/binaryStore", "path",
-                Tools.isBlank(binaryStorePath) ? repositoryName : binaryStorePath);  // Can be either partial or full path.  Partial path will be relative to Nuxeo's data directory
+//        repoConfigDoc = XmlTools.setAttributeValue(repoConfigDoc,
+//        		ConfigUtils.REPOSITORY_EXTENSION_POINT_XPATH + "/repository/binaryStore", "path",
+//                Tools.isBlank(binaryStorePath) ? repositoryName : binaryStorePath);  // Can be either partial or full path.  Partial path will be relative to Nuxeo's data directory
 
         /* Create the JDBC url options if any exist */
         String jdbcOptions = XmlTools.getElementValue(repoConfigDoc,

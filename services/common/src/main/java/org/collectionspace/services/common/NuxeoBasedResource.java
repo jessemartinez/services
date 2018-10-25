@@ -97,6 +97,7 @@ public abstract class NuxeoBasedResource
             @Context UriInfo uriInfo,
             @PathParam("csid") String csid,
             @PathParam("indexid") String indexid) {
+    	uriInfo = new UriInfoWrapper(uriInfo);
        	Response result = Response.status(Response.Status.OK).entity("Reindex complete.").type("text/plain").build();
        	boolean success = false;
        	
@@ -125,6 +126,7 @@ public abstract class NuxeoBasedResource
             @Context Request request,
             @Context UriInfo uriInfo,
             @PathParam("indexid") String indexid) {
+    	uriInfo = new UriInfoWrapper(uriInfo);
        	Response result = Response.noContent().build();
        	boolean success = false;
        	String docType = null;
@@ -153,9 +155,10 @@ public abstract class NuxeoBasedResource
     @POST
     public Response create(
     		@Context ResourceMap resourceMap,
-    		@Context UriInfo ui,
+    		@Context UriInfo uriInfo,
             String xmlPayload) {
-        return this.create(null, resourceMap, ui, xmlPayload); 
+    	uriInfo = new UriInfoWrapper(uriInfo);
+        return this.create(null, resourceMap, uriInfo, xmlPayload);
     }
     
     public Response create(ServiceContext<PoxPayloadIn, PoxPayloadOut> parentCtx, // REM: 8/13/2012 - Some sub-classes will override this method -e.g., MediaResource does.
@@ -208,6 +211,7 @@ public abstract class NuxeoBasedResource
     		@Context UriInfo uriInfo,
     		@PathParam("csid") String csid,
     		String xmlPayload) {
+    	uriInfo = new UriInfoWrapper(uriInfo);
         return this.update(null, resourceMap, uriInfo, csid, xmlPayload); 
     }
 
@@ -327,15 +331,63 @@ public abstract class NuxeoBasedResource
     //======================= GET ====================================================
     @GET
     @Path("{csid}")
-    public byte[] get(
-            @Context Request request,    		
+    public Response get(
+            @Context Request request,
             @Context UriInfo uriInfo,
             @PathParam("csid") String csid) {
+    	uriInfo = new UriInfoWrapper(uriInfo);
         PoxPayloadOut result = null;
+        
+        try {
+            result = getResourceFromCsid(request, uriInfo, csid);
+        } catch (Exception e) {
+            throw bigReThrow(e, ServiceMessages.READ_FAILED, csid);
+        }
+        
+        if (result == null) {
+            Response response = Response.status(Response.Status.NOT_FOUND).entity(
+                    ServiceMessages.READ_FAILED + ServiceMessages.resourceNotFoundMsg(csid)).type("text/plain").build();
+            throw new CSWebApplicationException(response);
+        }        
+
+        return Response.ok(result.getBytes()).build();
+    }
+    
+    public PoxPayloadOut getResourceFromCsid(
+            Request request,
+            UriInfo uriInfo,
+            String csid) throws Exception {
+        PoxPayloadOut result = null;
+        
+        ensureCSID(csid, READ);
+        RemoteServiceContext<PoxPayloadIn, PoxPayloadOut> ctx = 
+        		(RemoteServiceContext<PoxPayloadIn, PoxPayloadOut>) createServiceContext(request, uriInfo);
+        result = get(csid, ctx);// ==> CALL an implementation method, which subclasses may override.
+
+        return result;
+    }    
+    
+    /**
+     * Call this method only from other resources (like the Service Groups resource) obtained from the global resource map (ResourceMap).  If the a parent
+     * context exists and it has an open Nuxeo repository session, we will use it; otherwise, we will create a new one.
+     * 
+     * @param parentCtx
+     * @param csid
+     * @return
+     */
+    public PoxPayloadOut getWithParentCtx(ServiceContext<PoxPayloadIn, PoxPayloadOut> parentCtx,
+    		String csid) {
+    	PoxPayloadOut result = null;
+    	
         ensureCSID(csid, READ);
         try {
-            RemoteServiceContext<PoxPayloadIn, PoxPayloadOut> ctx = (RemoteServiceContext<PoxPayloadIn, PoxPayloadOut>) createServiceContext(uriInfo);
+            RemoteServiceContext<PoxPayloadIn, PoxPayloadOut> ctx = (RemoteServiceContext<PoxPayloadIn, PoxPayloadOut>) createServiceContext();
+            if (parentCtx != null && parentCtx.getCurrentRepositorySession() != null) {
+            	ctx.setCurrentRepositorySession(parentCtx.getCurrentRepositorySession()); // Reuse the current repo session if one exists
+            }
+            
             result = get(csid, ctx);// ==> CALL implementation method, which subclasses may override.
+            
             if (result == null) {
                 Response response = Response.status(Response.Status.NOT_FOUND).entity(
                         ServiceMessages.READ_FAILED + ServiceMessages.resourceNotFoundMsg(csid)).type("text/plain").build();
@@ -345,7 +397,7 @@ public abstract class NuxeoBasedResource
             throw bigReThrow(e, ServiceMessages.READ_FAILED, csid);
         }
 
-        return result.getBytes();
+    	return result;
     }
 
     protected PoxPayloadOut get(@PathParam("csid") String csid,
@@ -392,18 +444,19 @@ public abstract class NuxeoBasedResource
 
     //======================= GET without csid. List, search, etc. =====================================
     @GET
-    public AbstractCommonList getList(@Context UriInfo ui) {
+    public AbstractCommonList getList(@Context UriInfo uriInfo) {
+    	uriInfo = new UriInfoWrapper(uriInfo);
         AbstractCommonList list = null;
         
-        MultivaluedMap<String, String> queryParams = ui.getQueryParameters();
+        MultivaluedMap<String, String> queryParams = uriInfo.getQueryParameters();
         if (isGetAllRequest(queryParams) == false) {
             String orderBy = queryParams.getFirst(IClientQueryParams.ORDER_BY_PARAM);
             String keywords = queryParams.getFirst(IQueryManager.SEARCH_TYPE_KEYWORDS_KW);
             String advancedSearch = queryParams.getFirst(IQueryManager.SEARCH_TYPE_KEYWORDS_AS);
             String partialTerm = queryParams.getFirst(IQueryManager.SEARCH_TYPE_PARTIALTERM);
-            list = search(ui, orderBy, keywords, advancedSearch, partialTerm);
+            list = search(uriInfo, orderBy, keywords, advancedSearch, partialTerm);
         } else {
-            list = getCommonList(ui);
+            list = getCommonList(uriInfo);
         }
         
         return list;
@@ -523,6 +576,7 @@ public abstract class NuxeoBasedResource
     public AuthorityRefList getAuthorityRefs(
             @PathParam("csid") String csid,
             @Context UriInfo uriInfo) {
+    	uriInfo = new UriInfoWrapper(uriInfo);
         AuthorityRefList authRefList = null;
         try {
             ServiceContext<PoxPayloadIn, PoxPayloadOut> ctx = createServiceContext(uriInfo);
@@ -589,7 +643,7 @@ public abstract class NuxeoBasedResource
 	}
     
     @Override
-    public ServiceDescription getDescription(ServiceContext ctx) {
+    public ServiceDescription getDescription(ServiceContext<PoxPayloadIn, PoxPayloadOut> ctx) {
     	ServiceDescription result = new ServiceDescription();
     	
     	result.setDocumentType(getDocType(ctx.getTenantId()));
@@ -602,25 +656,9 @@ public abstract class NuxeoBasedResource
      * for all inheriting resource classes. Just use ServiceContext.getResourceMap() to get
      * the map, and pass it in.
      */
-    public static DocumentModel getDocModelForRefName(CoreSessionInterface repoSession, String refName, ResourceMap resourceMap) 
+    public static DocumentModel getDocModelForRefName(ServiceContext<PoxPayloadIn, PoxPayloadOut> ctx, String refName, ResourceMap resourceMap) 
    			throws Exception, DocumentNotFoundException {
-    	RefName.AuthorityItem item = RefName.AuthorityItem.parse(refName);
-    	if (item != null) {
-        	NuxeoBasedResource resource = (NuxeoBasedResource) resourceMap.get(item.inAuthority.resource);
-        	return resource.getDocModelForAuthorityItem(repoSession, item);
-    	}
-    	RefName.Authority authority = RefName.Authority.parse(refName);
-    	// Handle case of objects refNames, which must be csid based.
-    	if(authority != null && !Tools.isEmpty(authority.csid)) {
-        	NuxeoBasedResource resource = (NuxeoBasedResource) resourceMap.get(authority.resource);
-            // Ensure we have the right context.
-            ServiceContext<PoxPayloadIn, PoxPayloadOut> ctx = 
-            		resource.createServiceContext(authority.resource);
-            // HACK - this really must be moved to the doc handler, not here. No Nuxeo specific stuff here!
-            DocumentModel docModel = NuxeoUtils.getDocFromCsid(ctx, repoSession, authority.csid);
-            return docModel;
-    	}
-    	return null;
+    	return NuxeoUtils.getDocModelForRefName(ctx, refName, resourceMap);
     }
 
     // This is ugly, but prevents us parsing the refName twice. Once we make refName a little more
@@ -633,6 +671,6 @@ public abstract class NuxeoBasedResource
 
     public DocumentModel getDocModelForRefName(CoreSessionInterface repoSession, String refName) 
    			throws Exception, DocumentNotFoundException {
-    	return getDocModelForAuthorityItem(repoSession, RefName.AuthorityItem.parse(refName));
+    	return getDocModelForAuthorityItem(repoSession, RefName.AuthorityItem.parse(refName, true));
     }
 }
