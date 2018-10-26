@@ -14,8 +14,8 @@ import org.collectionspace.services.common.invocable.InvocationContext;
 import org.collectionspace.services.client.LoanoutClient;
 import org.collectionspace.services.client.RelationClient;
 
-public class CreateAndLinkLoanOutBatchJob extends AbstractBatchInvocable {
-
+public class CreateAndLinkLoanOutBatchJob /*extends AbstractBatchInvocable*/ {
+/*
 	private final String RELATION_TYPE = "affects"; 
 	private final String LOAN_DOCTYPE = "LoanOut";
 	private final String RELATION_PREDICATE_DISP = "affects"; 
@@ -38,10 +38,11 @@ public class CreateAndLinkLoanOutBatchJob extends AbstractBatchInvocable {
     public InvocationContext getInvocationContext() {
         return invocationCtx;
     }    
-	
+*/	
 	/**
 	 * The main work logic of the batch job. Will be called after setContext.
 	 */
+/*
 	@Override
 	public void run() {
 		completionStatus = STATUS_MIN_PROGRESS;
@@ -139,4 +140,5 @@ public class CreateAndLinkLoanOutBatchJob extends AbstractBatchInvocable {
 		}
 		return completionStatus;
 	}
+*/
 }
