@@ -92,11 +92,19 @@ public class YearIDGeneratorPart implements IDGeneratorPart {
     @Override
 	public String getCurrentID() {
         String currentYear = "";
+
+        // HACK always look up current year since there is no automatic way
+        // to update the year once it's set
+        // JJM 
+        currentYear = getCurrentYear();
+
+        /*
         if (this.currentValue == null || this.currentValue.trim().isEmpty()) {
             currentYear = getCurrentYear();
         } else {
             currentYear = this.currentValue;
         }
+        */
 		return currentYear;
 	}
 
