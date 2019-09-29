@@ -168,7 +168,7 @@ received on loan.',
 
 -- LOANS_OUT_LOT_NUMBER
 -- status: new
--- format: OL2019.1.1
+-- format: OL2019.1
 
 INSERT INTO id_generators
     (csid, displayname, description, priority, last_generated_id, id_generator_state)
